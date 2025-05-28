@@ -11,6 +11,7 @@ interface Competition {
   startDate: string;
   endDate: string;
   status: string;
+  logo?: string;
   games: Game[];
 }
 
@@ -51,6 +52,18 @@ export default function CompetitionDetail() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [editGame, setEditGame] = useState<Game | null>(null);
   const [showEditGameModal, setShowEditGameModal] = useState(false);
+  
+  // Competition editing state
+  const [showEditCompetitionModal, setShowEditCompetitionModal] = useState(false);
+  const [editCompetitionData, setEditCompetitionData] = useState({
+    name: '',
+    description: '',
+    startDate: '',
+    endDate: '',
+    logo: '',
+  });
+  const [isUpdatingCompetition, setIsUpdatingCompetition] = useState(false);
+  const [competitionError, setCompetitionError] = useState<string | null>(null);
 
   const fetchCompetitionDetails = useCallback(async () => {
     if (!competitionId || status !== 'authenticated') return;
@@ -215,6 +228,58 @@ export default function CompetitionDetail() {
     }
   };
 
+  // Competition editing functions
+  const handleEditCompetition = () => {
+    if (!competition) return;
+    
+    setEditCompetitionData({
+      name: competition.name,
+      description: competition.description || '',
+      startDate: competition.startDate.slice(0, 10), // Convert to YYYY-MM-DD format
+      endDate: competition.endDate.slice(0, 10),
+      logo: competition.logo || '',
+    });
+    setShowEditCompetitionModal(true);
+    setCompetitionError(null);
+  };
+
+  const handleCompetitionInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setEditCompetitionData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleUpdateCompetition = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setCompetitionError(null);
+    
+    if (!editCompetitionData.name || !editCompetitionData.startDate || !editCompetitionData.endDate) {
+      setCompetitionError('Please fill in all required fields.');
+      return;
+    }
+
+    setIsUpdatingCompetition(true);
+    try {
+      const response = await fetch(`/api/admin/competitions/${competitionId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editCompetitionData),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to update competition');
+      }
+
+      const updatedCompetition = await response.json();
+      setCompetition(updatedCompetition);
+      setShowEditCompetitionModal(false);
+    } catch (error) {
+      setCompetitionError(error instanceof Error ? error.message : 'Failed to update competition');
+    } finally {
+      setIsUpdatingCompetition(false);
+    }
+  };
+
   if (status === 'loading' || loading) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
@@ -258,7 +323,58 @@ export default function CompetitionDetail() {
 
   return (
     <>
-      <h2 className="text-2xl font-bold mb-6 text-gray-100 md:text-gray-900" style={{color: 'var(--competition-title-color, #fff)'}}>{competition.name}</h2>
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center space-x-4">
+            {competition.logo && (
+              <img 
+                src={competition.logo} 
+                alt={`${competition.name} logo`}
+                className="h-12 w-12 object-contain"
+              />
+            )}
+            <div>
+              <h2 className="text-2xl font-bold text-gray-100 md:text-gray-900" style={{color: 'var(--competition-title-color, #fff)'}}>{competition.name}</h2>
+              {competition.description && (
+                <p className="text-gray-600 mt-1">{competition.description}</p>
+              )}
+            </div>
+          </div>
+          <button
+            className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 flex items-center space-x-2"
+            onClick={handleEditCompetition}
+          >
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+            <span>Edit Competition</span>
+          </button>
+        </div>
+        
+        <div className="bg-gray-50 rounded-lg p-4 mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+            <div>
+              <span className="font-medium text-gray-700">Start Date:</span>
+              <p className="text-gray-900">{new Date(competition.startDate).toLocaleDateString()}</p>
+            </div>
+            <div>
+              <span className="font-medium text-gray-700">End Date:</span>
+              <p className="text-gray-900">{new Date(competition.endDate).toLocaleDateString()}</p>
+            </div>
+            <div>
+              <span className="font-medium text-gray-700">Status:</span>
+              <span className={`inline-block px-2 py-1 text-xs rounded-full ml-2 ${
+                competition.status === 'ACTIVE' ? 'bg-green-100 text-green-800' :
+                competition.status === 'UPCOMING' ? 'bg-blue-100 text-blue-800' :
+                'bg-gray-100 text-gray-800'
+              }`}>
+                {competition.status}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
       <button
         className="mb-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
         onClick={() => setShowNewGameModal(true)}
@@ -462,6 +578,110 @@ export default function CompetitionDetail() {
                 {isSubmitting ? "Saving..." : "Save"}
                   </button>
               </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Edit Competition Modal */}
+        {showEditCompetitionModal && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
+            <div className="bg-white p-6 rounded shadow-lg w-full max-w-lg">
+              <h2 className="text-lg font-semibold mb-4 text-gray-900">Edit Competition</h2>
+              {competitionError && <div className="text-red-500 mb-4">{competitionError}</div>}
+              
+              <form onSubmit={handleUpdateCompetition} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Competition Name *</label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={editCompetitionData.name}
+                    onChange={handleCompetitionInputChange}
+                    className="w-full border border-gray-300 rounded px-3 py-2 text-gray-800"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                  <textarea
+                    name="description"
+                    value={editCompetitionData.description}
+                    onChange={handleCompetitionInputChange}
+                    rows={3}
+                    className="w-full border border-gray-300 rounded px-3 py-2 text-gray-800"
+                  />
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Start Date *</label>
+                    <input
+                      type="date"
+                      name="startDate"
+                      value={editCompetitionData.startDate}
+                      onChange={handleCompetitionInputChange}
+                      className="w-full border border-gray-300 rounded px-3 py-2 text-gray-800"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">End Date *</label>
+                    <input
+                      type="date"
+                      name="endDate"
+                      value={editCompetitionData.endDate}
+                      onChange={handleCompetitionInputChange}
+                      className="w-full border border-gray-300 rounded px-3 py-2 text-gray-800"
+                      required
+                    />
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Logo URL</label>
+                  <input
+                    type="url"
+                    name="logo"
+                    value={editCompetitionData.logo}
+                    onChange={handleCompetitionInputChange}
+                    placeholder="https://example.com/logo.svg"
+                    className="w-full border border-gray-300 rounded px-3 py-2 text-gray-800"
+                  />
+                  {editCompetitionData.logo && (
+                    <div className="mt-2">
+                      <p className="text-sm text-gray-600 mb-1">Preview:</p>
+                      <img 
+                        src={editCompetitionData.logo} 
+                        alt="Logo preview"
+                        className="h-12 w-12 object-contain border border-gray-200 rounded"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                        }}
+                      />
+                    </div>
+                  )}
+                </div>
+                
+                <div className="flex justify-end gap-2 pt-4">
+                  <button
+                    type="button"
+                    className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+                    onClick={() => setShowEditCompetitionModal(false)}
+                    disabled={isUpdatingCompetition}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                    disabled={isUpdatingCompetition}
+                  >
+                    {isUpdatingCompetition ? "Saving..." : "Save Changes"}
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         )}

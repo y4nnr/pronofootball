@@ -51,6 +51,53 @@ export default async function handler(
       res.status(500).json({ error: 'Failed to fetch competition details' });
     }
 
+  } else if (req.method === 'PUT') {
+    // Handle updating competition details
+    const { competitionId } = req.query;
+    const { name, description, startDate, endDate, logo } = req.body;
+
+    if (!competitionId || Array.isArray(competitionId)) {
+      return res.status(400).json({ error: 'Invalid competition ID' });
+    }
+
+    if (!name || !startDate || !endDate) {
+      return res.status(400).json({ error: 'Missing required fields: name, startDate, endDate' });
+    }
+
+    try {
+      const updatedCompetition = await prisma.competition.update({
+        where: {
+          id: competitionId,
+        },
+        data: {
+          name,
+          description,
+          startDate: new Date(startDate),
+          endDate: new Date(endDate),
+          logo: logo || null,
+        },
+        include: {
+          games: {
+            include: {
+              homeTeam: true,
+              awayTeam: true,
+            },
+          },
+        },
+      });
+
+      res.status(200).json(updatedCompetition);
+    } catch (error: any) {
+      console.error('Error updating competition:', error);
+
+      // Handle case where competition is not found
+      if (error.code === 'P2025') {
+        return res.status(404).json({ error: 'Competition not found.' });
+      }
+
+      res.status(500).json({ error: 'Failed to update competition' });
+    }
+
   } else if (req.method === 'DELETE') {
     const { competitionId } = req.query;
 
