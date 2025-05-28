@@ -69,7 +69,7 @@ A comprehensive football prediction platform built with Next.js, featuring real-
 
 7. **Access the application**:
    - Open [http://localhost:3000](http://localhost:3000)
-   - Login with admin credentials: `admin@pronofootball.com` / `admin123`
+   - Login with admin credentials: **Username:** `Admin` **Password:** `Admin`
 
 ## 📊 Sample Data
 
