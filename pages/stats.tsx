@@ -43,6 +43,7 @@ interface LeaderboardData {
       id: string;
       name: string;
     } | null;
+    logo?: string;
   }>;
 }
 
@@ -723,19 +724,6 @@ export default function Stats({ currentUser }: { currentUser: any }) {
                     </tr>
                   ) : leaderboardData?.competitions && leaderboardData.competitions.length > 0 ? (
                     leaderboardData.competitions.map((competition, index) => {
-                      // Get competition logo/icon
-                      const getCompetitionIcon = (name: string) => {
-                        if (name.includes('Euro')) return 'EU';
-                        if (name.includes('World Cup')) return 'WC';
-                        return name.substring(0, 2).toUpperCase();
-                      };
-                      
-                      const getCompetitionColor = (name: string) => {
-                        if (name.includes('Euro')) return 'from-blue-500 to-purple-600';
-                        if (name.includes('World Cup')) return 'from-red-500 to-yellow-600';
-                        return 'from-gray-500 to-gray-600';
-                      };
-                      
                       // Get winner's points for this specific competition
                       const getWinnerPoints = (winnerId: string, competitionName: string) => {
                         const winner = leaderboardData.topPlayersByPoints.find(player => player.id === winnerId);
@@ -753,9 +741,19 @@ export default function Stats({ currentUser }: { currentUser: any }) {
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center">
                               <div className="flex-shrink-0 h-10 w-10">
-                                <div className={`h-10 w-10 rounded-full bg-gradient-to-r ${getCompetitionColor(competition.name)} flex items-center justify-center`}>
-                                  <span className="text-white font-bold text-sm">{getCompetitionIcon(competition.name)}</span>
-                                </div>
+                                {competition.logo ? (
+                                  <img 
+                                    src={competition.logo} 
+                                    alt={`${competition.name} logo`}
+                                    className="h-10 w-10 object-contain"
+                                  />
+                                ) : (
+                                  <div className="h-10 w-10 rounded-full bg-gradient-to-r from-gray-500 to-gray-600 flex items-center justify-center">
+                                    <span className="text-white font-bold text-sm">
+                                      {competition.name.substring(0, 2).toUpperCase()}
+                                    </span>
+                                  </div>
+                                )}
                               </div>
                               <div className="ml-4">
                                 <div className="text-sm font-medium text-gray-900">{competition.name}</div>

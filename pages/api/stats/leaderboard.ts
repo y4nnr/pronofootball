@@ -151,7 +151,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       startDate: comp.startDate,
       endDate: comp.endDate,
       status: comp.status,
-      winner: comp.winner
+      winner: comp.winner,
+      logo: comp.logo
     }));
 
     res.status(200).json({
