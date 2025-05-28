@@ -15,7 +15,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    // Get all non-admin users with their stats
+    // Get all competitions to identify real ones and their winners
+    const competitions = await prisma.competition.findMany({
+      include: {
+        winner: true
+      }
+    });
+
+    // Get all non-admin users with their stats and bets
     const users = await prisma.user.findMany({
       where: {
         role: {
@@ -26,7 +33,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         stats: true,
         bets: {
           include: {
-            game: true
+            game: {
+              include: {
+                competition: true
+              }
+            }
           }
         }
       },
@@ -45,67 +56,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           const totalBets = user.bets.length;
           const totalPoints = user.bets.reduce((sum: number, bet: any) => sum + bet.points, 0);
           const accuracy = totalBets > 0 ? (totalPoints / (totalBets * 3)) * 100 : 0;
-          const wins = user.bets.filter((bet: any) => bet.points > 0).length;
           
-          // Calculate longest streak with dates
-          let longestStreak = 0;
-          let currentStreak = 0;
-          let longestStreakStart: Date | null = null;
-          let longestStreakEnd: Date | null = null;
-          let currentStreakStart: Date | null = null;
+          // Calculate actual competition wins (not games with points)
+          const competitionWins = competitions.filter((comp: any) => comp.winner?.id === user.id).length;
           
-          const sortedBets = user.bets
-            .filter((bet: any) => bet.game.status === 'FINISHED')
-            .sort((a: any, b: any) => new Date(a.game.date).getTime() - new Date(b.game.date).getTime());
+          // NO STREAK CALCULATION FROM HISTORICAL DATA
+          // All streaks should be 0 until the first real competition starts
+          const longestStreak = 0;
+          const exactScoreStreak = 0;
+          const longestStreakStart: Date | null = null;
+          const longestStreakEnd: Date | null = null;
+          const exactStreakStart: Date | null = null;
+          const exactStreakEnd: Date | null = null;
           
-          for (const bet of sortedBets) {
-            if (bet.points > 0) {
-              if (currentStreak === 0) {
-                currentStreakStart = bet.game.date;
-              }
-              currentStreak++;
-              
-              if (currentStreak > longestStreak) {
-                longestStreak = currentStreak;
-                longestStreakStart = currentStreakStart;
-                longestStreakEnd = bet.game.date;
-              }
-            } else {
-              currentStreak = 0;
-              currentStreakStart = null;
-            }
-          }
-
-          // Calculate exact score streak with dates
-          let exactScoreStreak = 0;
-          let currentExactStreak = 0;
-          let exactStreakStart: Date | null = null;
-          let exactStreakEnd: Date | null = null;
-          let currentExactStreakStart: Date | null = null;
-          
-          for (const bet of sortedBets) {
-            if (bet.points === 3) {
-              if (currentExactStreak === 0) {
-                currentExactStreakStart = bet.game.date;
-              }
-              currentExactStreak++;
-              
-              if (currentExactStreak > exactScoreStreak) {
-                exactScoreStreak = currentExactStreak;
-                exactStreakStart = currentExactStreakStart;
-                exactStreakEnd = bet.game.date;
-              }
-            } else {
-              currentExactStreak = 0;
-              currentExactStreakStart = null;
-            }
-          }
-
           stats = {
             totalPredictions: totalBets,
             totalPoints,
             accuracy: Math.round(accuracy * 100) / 100,
-            wins,
+            wins: competitionWins, // Fixed: actual competition wins, not games with points
             longestStreak,
             exactScoreStreak,
             longestStreakStart,
@@ -114,63 +82,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             exactStreakEnd
           };
         } else {
-          // For existing stats, calculate streak dates from bets
-          const sortedBets = user.bets
-            .filter((bet: any) => bet.game.status === 'FINISHED')
-            .sort((a: any, b: any) => new Date(a.game.date).getTime() - new Date(b.game.date).getTime());
+          // For existing stats, recalculate competition wins and reset streaks to 0
+          const competitionWins = competitions.filter((comp: any) => comp.winner?.id === user.id).length;
           
-          // Find longest streak dates
-          let longestStreak = 0;
-          let currentStreak = 0;
-          let longestStreakStart: Date | null = null;
-          let longestStreakEnd: Date | null = null;
-          let currentStreakStart: Date | null = null;
-          
-          for (const bet of sortedBets) {
-            if (bet.points > 0) {
-              if (currentStreak === 0) {
-                currentStreakStart = bet.game.date;
-              }
-              currentStreak++;
-              
-              if (currentStreak > longestStreak) {
-                longestStreak = currentStreak;
-                longestStreakStart = currentStreakStart;
-                longestStreakEnd = bet.game.date;
-              }
-            } else {
-              currentStreak = 0;
-              currentStreakStart = null;
-            }
-          }
-
-          // Find exact score streak dates
-          let exactScoreStreak = 0;
-          let currentExactStreak = 0;
-          let exactStreakStart: Date | null = null;
-          let exactStreakEnd: Date | null = null;
-          let currentExactStreakStart: Date | null = null;
-          
-          for (const bet of sortedBets) {
-            if (bet.points === 3) {
-              if (currentExactStreak === 0) {
-                currentExactStreakStart = bet.game.date;
-              }
-              currentExactStreak++;
-              
-              if (currentExactStreak > exactScoreStreak) {
-                exactScoreStreak = currentExactStreak;
-                exactStreakStart = currentExactStreakStart;
-                exactStreakEnd = bet.game.date;
-              }
-            } else {
-              currentExactStreak = 0;
-              currentExactStreakStart = null;
-            }
-          }
+          // NO STREAK CALCULATION FROM HISTORICAL DATA
+          // All streaks should be 0 until the first real competition starts
+          const longestStreak = 0;
+          const exactScoreStreak = 0;
+          const longestStreakStart: Date | null = null;
+          const longestStreakEnd: Date | null = null;
+          const exactStreakStart: Date | null = null;
+          const exactStreakEnd: Date | null = null;
 
           stats = {
             ...stats,
+            wins: competitionWins, // Fixed: actual competition wins
+            longestStreak,
+            exactScoreStreak,
             longestStreakStart,
             longestStreakEnd,
             exactStreakStart,
@@ -216,10 +144,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Get total user count (excluding admins)
     const totalUsers = usersWithCalculatedStats.length;
 
+    // Add competitions data for Palmarès section
+    const competitionsData = competitions.map((comp: any) => ({
+      id: comp.id,
+      name: comp.name,
+      startDate: comp.startDate,
+      endDate: comp.endDate,
+      status: comp.status,
+      winner: comp.winner
+    }));
+
     res.status(200).json({
       topPlayersByPoints,
       topPlayersByAverage,
-      totalUsers
+      totalUsers,
+      competitions: competitionsData
     });
 
   } catch (error) {

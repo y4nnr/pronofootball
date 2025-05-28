@@ -38,53 +38,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    // Get user's last 10 finished games with bets
-    const userBets = await prisma.bet.findMany({
-      where: {
-        userId: session.user.id,
-        game: {
-          status: 'FINISHED',
-          homeScore: { not: null },
-          awayScore: { not: null }
-        }
-      },
-      include: {
-        game: {
-          include: {
-            homeTeam: {
-              select: { name: true, logo: true }
-            },
-            awayTeam: {
-              select: { name: true, logo: true }
-            },
-            competition: {
-              select: { name: true }
-            }
-          }
-        }
-      },
-      orderBy: {
-        game: {
-          date: 'desc'
-        }
-      },
-      take: 10
-    });
-
-    // Format the response
-    const lastGamesPerformance = userBets.map((bet: BetWithGame) => ({
-      gameId: bet.game.id,
-      date: bet.game.date,
-      homeTeam: bet.game.homeTeam.name,
-      awayTeam: bet.game.awayTeam.name,
-      homeTeamLogo: bet.game.homeTeam.logo,
-      awayTeamLogo: bet.game.awayTeam.logo,
-      competition: bet.game.competition.name,
-      actualScore: `${bet.game.homeScore}-${bet.game.awayScore}`,
-      predictedScore: `${bet.score1}-${bet.score2}`,
-      points: bet.points,
-      result: bet.points === 3 ? 'exact' : bet.points === 1 ? 'correct' : 'wrong'
-    }));
+    // NO PERFORMANCE DATA FROM HISTORICAL COMPETITIONS
+    // Return empty data until the first real competition is played with this app
+    // Historical competitions (Euro 2016, World Cup 2018) are excluded
+    const lastGamesPerformance: any[] = [];
 
     res.status(200).json({ lastGamesPerformance });
 

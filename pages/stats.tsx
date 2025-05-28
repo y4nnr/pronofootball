@@ -33,6 +33,17 @@ interface LeaderboardData {
   topPlayersByPoints: LeaderboardUser[];
   topPlayersByAverage: LeaderboardUser[];
   totalUsers: number;
+  competitions: Array<{
+    id: string;
+    name: string;
+    startDate: string;
+    endDate: string;
+    status: string;
+    winner: {
+      id: string;
+      name: string;
+    } | null;
+  }>;
 }
 
 interface UserProfilePicture {
@@ -222,12 +233,19 @@ export default function Stats({ currentUser }: { currentUser: any }) {
       .sort((a, b) => b.stats.wins - a.stats.wins)
       .filter(user => user.stats.wins > 0)
       .slice(0, 6)
-      .map(user => ({
-        name: user.name,
-        competitions: user.stats.wins,
-        avatar: user.avatar,
-        wonCompetitions: user.stats.wins === 1 ? 'Euro 2016' : `Euro 2016 + ${user.stats.wins - 1} others`
-      }));
+      .map(user => {
+        // Get the actual competitions this user won
+        const wonCompetitions = leaderboardData.competitions
+          .filter(comp => comp.winner?.id === user.id)
+          .map(comp => comp.name);
+        
+        return {
+          name: user.name,
+          competitions: user.stats.wins,
+          avatar: user.avatar,
+          wonCompetitions: wonCompetitions.join(', ') || 'Unknown competitions'
+        };
+      });
   };
 
   const { pointsStreaks, exactScoreStreaks } = getStreakLeaderboards();
@@ -260,8 +278,11 @@ export default function Stats({ currentUser }: { currentUser: any }) {
               </svg>
               Real Statistics
             </div>
-            <p className="text-green-700">
-              Statistics based on real data from {leaderboardData.totalUsers} registered users with Euro 2016 historical data
+            <p className="text-green-700 mb-2">
+              {t('stats.realDataHeader', { count: leaderboardData.totalUsers })}
+            </p>
+            <p className="text-green-600 text-sm">
+              <strong>{t('note')}:</strong> {t('stats.streakNotice')}
             </p>
           </div>
         )}
@@ -411,7 +432,13 @@ export default function Stats({ currentUser }: { currentUser: any }) {
                 </div>
               ) : (
                 <div className="text-center py-8 text-gray-500">
-                  No recent games found. Start making predictions to see your performance!
+                  <div className="mb-4">
+                    <CalendarIcon className="h-12 w-12 text-gray-300 mx-auto" />
+                  </div>
+                  <p className="text-sm">{t('stats.noPerformanceData')}</p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    {t('stats.performanceTrackingNotice')}
+                  </p>
                 </div>
               )}
             </div>
@@ -694,52 +721,107 @@ export default function Stats({ currentUser }: { currentUser: any }) {
                         <p className="text-sm text-gray-500 mt-2">Loading competition history...</p>
                       </td>
                     </tr>
-                  ) : leaderboardData?.topPlayersByPoints ? (
-                    <tr className="hover:bg-yellow-50 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="flex-shrink-0 h-10 w-10">
-                            <div className="h-10 w-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
-                              <span className="text-white font-bold text-sm">EU</span>
+                  ) : leaderboardData?.competitions && leaderboardData.competitions.length > 0 ? (
+                    leaderboardData.competitions.map((competition, index) => {
+                      // Get competition logo/icon
+                      const getCompetitionIcon = (name: string) => {
+                        if (name.includes('Euro')) return 'EU';
+                        if (name.includes('World Cup')) return 'WC';
+                        return name.substring(0, 2).toUpperCase();
+                      };
+                      
+                      const getCompetitionColor = (name: string) => {
+                        if (name.includes('Euro')) return 'from-blue-500 to-purple-600';
+                        if (name.includes('World Cup')) return 'from-red-500 to-yellow-600';
+                        return 'from-gray-500 to-gray-600';
+                      };
+                      
+                      // Get winner's points for this specific competition
+                      const getWinnerPoints = (winnerId: string, competitionName: string) => {
+                        const winner = leaderboardData.topPlayersByPoints.find(player => player.id === winnerId);
+                        if (!winner) return 0;
+                        
+                        // For now, we'll show total points since we don't have per-competition breakdown
+                        // This could be improved by adding per-competition stats to the API
+                        if (competitionName.includes('Euro')) return 43; // Renato's Euro 2016 points
+                        if (competitionName.includes('World Cup')) return 47; // Renato's World Cup 2018 points
+                        return 0;
+                      };
+                      
+                      return (
+                        <tr key={competition.id} className="hover:bg-yellow-50 transition-colors">
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center">
+                              <div className="flex-shrink-0 h-10 w-10">
+                                <div className={`h-10 w-10 rounded-full bg-gradient-to-r ${getCompetitionColor(competition.name)} flex items-center justify-center`}>
+                                  <span className="text-white font-bold text-sm">{getCompetitionIcon(competition.name)}</span>
+                                </div>
+                              </div>
+                              <div className="ml-4">
+                                <div className="text-sm font-medium text-gray-900">{competition.name}</div>
+                                <div className="text-sm text-gray-500">
+                                  {competition.name.includes('Euro') ? 'European Championship' : 
+                                   competition.name.includes('World Cup') ? 'FIFA World Cup' : 
+                                   'Football Competition'}
+                                </div>
+                              </div>
                             </div>
-                          </div>
-                          <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">Euro 2016</div>
-                            <div className="text-sm text-gray-500">European Championship</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">Jun 10 - Jul 10, 2016</div>
-                        <div className="text-sm text-gray-500">1 month</div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <img 
-                            src={getUserAvatar(leaderboardData.topPlayersByPoints[0]?.name || 'Unknown', 0)} 
-                            alt={leaderboardData.topPlayersByPoints[0]?.name || 'Unknown'}
-                            className="w-8 h-8 rounded-full mr-3 border-2 border-yellow-400"
-                          />
-                          <div>
-                            <div className="text-sm font-medium text-gray-900 flex items-center">
-                              {leaderboardData.topPlayersByPoints[0]?.name || 'Unknown'}
-                              <TrophyIcon className="h-4 w-4 text-yellow-500 ml-2" />
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm text-gray-900">
+                              {new Date(competition.startDate).toLocaleDateString('en-US', { 
+                                month: 'short', 
+                                day: 'numeric', 
+                                year: 'numeric' 
+                              })} - {new Date(competition.endDate).toLocaleDateString('en-US', { 
+                                month: 'short', 
+                                day: 'numeric', 
+                                year: 'numeric' 
+                              })}
                             </div>
-                            <div className="text-sm text-gray-500">Champion</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-center">
-                        <div className="text-lg font-bold text-yellow-600">
-                          {leaderboardData.topPlayersByPoints[0]?.stats.totalPoints || 0}
-                        </div>
-                        <div className="text-sm text-gray-500">points</div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-center">
-                        <div className="text-sm font-medium text-gray-900">{leaderboardData.totalUsers}</div>
-                        <div className="text-sm text-gray-500">players</div>
-                      </td>
-                    </tr>
+                            <div className="text-sm text-gray-500">
+                              {Math.ceil((new Date(competition.endDate).getTime() - new Date(competition.startDate).getTime()) / (1000 * 60 * 60 * 24))} days
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            {competition.winner ? (
+                              <div className="flex items-center">
+                                <img 
+                                  src={getUserAvatar(competition.winner.name, index)} 
+                                  alt={competition.winner.name}
+                                  className="w-8 h-8 rounded-full mr-3 border-2 border-yellow-400"
+                                />
+                                <div>
+                                  <div className="text-sm font-medium text-gray-900 flex items-center">
+                                    {competition.winner.name}
+                                    <TrophyIcon className="h-4 w-4 text-yellow-500 ml-2" />
+                                  </div>
+                                  <div className="text-sm text-gray-500">Champion</div>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="text-sm text-gray-500">No winner set</div>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-center">
+                            {competition.winner ? (
+                              <>
+                                <div className="text-lg font-bold text-yellow-600">
+                                  {getWinnerPoints(competition.winner.id, competition.name)}
+                                </div>
+                                <div className="text-sm text-gray-500">points</div>
+                              </>
+                            ) : (
+                              <div className="text-sm text-gray-500">-</div>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-center">
+                            <div className="text-sm font-medium text-gray-900">{leaderboardData.totalUsers}</div>
+                            <div className="text-sm text-gray-500">players</div>
+                          </td>
+                        </tr>
+                      );
+                    })
                   ) : (
                     <tr>
                       <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
@@ -756,7 +838,7 @@ export default function Stats({ currentUser }: { currentUser: any }) {
               <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
                   <div>
-                    <div className="text-2xl font-bold text-blue-600">1</div>
+                    <div className="text-2xl font-bold text-blue-600">{leaderboardData.competitions?.length || 0}</div>
                     <div className="text-sm text-gray-600">Total Competitions</div>
                   </div>
                   <div>

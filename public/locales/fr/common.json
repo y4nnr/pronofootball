@@ -136,6 +136,7 @@
   "cancel": "Annuler",
   "create": "Créer",
   "submitting": "Envoi en cours...",
+  "note": "Note",
   "competitions": {
     "title": "Toutes les compétitions",
     "subtitle": "Rejoignez des compétitions et rivalisez avec d'autres utilisateurs",
@@ -187,6 +188,10 @@
     "points": "Points",
     "participants": "Participants",
     "realDataNotice": "Cette page montre la structure prévue avec des données fictives. Les vraies statistiques seront calculées à partir de vos prédictions et résultats de compétitions réels.",
+    "realDataHeader": "Statistiques basées sur des données réelles de {{count}} utilisateurs enregistrés avec des données de compétitions historiques",
+    "streakNotice": "Les statistiques de séries (plus longues séries) excluent les compétitions historiques et ne compteront qu'à partir de la première vraie compétition jouée avec cette application",
+    "noPerformanceData": "Aucune donnée de performance disponible pour le moment.",
+    "performanceTrackingNotice": "Le suivi des performances commencera avec la première vraie compétition jouée avec cette application.",
     "placeholderData": {
       "players": {
         "alexChampion": "Alex Champion",

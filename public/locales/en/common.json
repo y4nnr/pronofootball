@@ -131,6 +131,7 @@
   "cancel": "Cancel",
   "create": "Create",
   "submitting": "Submitting...",
+  "note": "Note",
   "competitions": {
     "title": "All Competitions",
     "subtitle": "Join competitions and compete with other users",
@@ -182,6 +183,10 @@
     "points": "Points",
     "participants": "Participants",
     "realDataNotice": "This page shows the planned structure with placeholder data. Real statistics will be calculated from your actual predictions and competition results.",
+    "realDataHeader": "Statistics based on real data from {{count}} registered users with historical competitions data",
+    "streakNotice": "Streak statistics (longest streaks) exclude historical competitions and will only count from the first real competition played with this app",
+    "noPerformanceData": "No performance data available yet.",
+    "performanceTrackingNotice": "Performance tracking will begin with the first real competition played with this app.",
     "placeholderData": {
       "players": {
         "alexChampion": "Alex Champion",
