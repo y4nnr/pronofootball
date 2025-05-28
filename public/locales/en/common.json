@@ -1,0 +1,272 @@
+{
+  "welcome": "Welcome to PronoFootball",
+  "getStarted": "Get Started",
+  "goToDashboard": "Go to Dashboard",
+  "signIn": "Sign in to your account",
+  "email": "Email address",
+  "password": "Password",
+  "signInButton": "Sign in",
+  "signingIn": "Signing in...",
+  "dashboard": {
+    "welcome": "Welcome",
+    "overview": "Here's an overview of your activity",
+    "loading": "Loading dashboard...",
+    "logout": "Logout",
+    "title": "Dashboard",
+    "subtitle": "Welcome to your personal dashboard",
+    "stats": {
+      "title": "Your Statistics",
+      "totalPredictions": "Total Predictions",
+      "accuracy": "Accuracy",
+      "currentStreak": "Current Streak",
+      "rank": "Rank",
+      "noStats": "No statistics available yet"
+    },
+    "competitions": {
+      "title": "Active Competitions",
+      "start": "Start Date",
+      "end": "End Date",
+      "noCompetitions": "No active competitions"
+    },
+    "news": {
+      "title": "Latest News",
+      "noNews": "No news available",
+      "welcome": {
+        "title": "Welcome to PronoFootball!",
+        "content": "Start making your predictions and compete with other users."
+      },
+      "euro2024": {
+        "title": "Euro 2024 Competition",
+        "content": "The Euro 2024 prediction competition is now live! Make your predictions for the upcoming matches."
+      },
+      "newFeature": {
+        "title": "New Feature: Live Updates",
+        "content": "Get real-time updates on match scores and your prediction results."
+      },
+      "maintenance": {
+        "title": "Scheduled Maintenance",
+        "content": "The platform will be under maintenance on Sunday, March 10th, from 2 AM to 4 AM UTC."
+      }
+    },
+    "nav": {
+      "title": "Quick Access",
+      "competitions": "View All Competitions",
+      "stats": "Detailed Statistics",
+      "profile": "Edit Profile",
+      "adminConfig": "Admin Configuration",
+      "home": "Home",
+      "predictions": "My Competitions",
+      "leaderboard": "Leaderboard",
+      "stats": "Statistics",
+      "ongoingCompetition": "Ongoing Competition"
+    },
+    "admin": {
+      "title": "Admin Controls",
+      "welcome": "Welcome to the Admin Dashboard",
+      "manageCompetitions": "Manage Competitions",
+      "manageCompetitionsDesc": "Create and manage prediction competitions",
+      "manageUsers": "Manage Users",
+      "manageUsersDesc": "View and manage user accounts",
+      "manageTeams": "Manage Teams",
+      "manageTeamsDesc": "Add, edit and manage football teams"
+    }
+  },
+  "admin": {
+    "title": "Admin Configuration",
+    "description": "Manage competitions and games",
+    "loading": "Loading admin data...",
+    "competitions": {
+      "title": "Competition Management",
+      "new": "New Competition",
+      "start": "Start Date",
+      "end": "End Date",
+      "status": {
+        "active": "Active",
+        "pending": "Pending",
+        "completed": "Completed",
+        "upcoming": "Upcoming"
+      },
+      "noCompetitions": "No competitions found",
+      "notFound": "Competition not found",
+      "viewAll": "View All Competitions",
+      "deleteConfirmationTitle": "Confirm Deletion",
+      "deleteConfirmationText": "Are you sure you want to delete this competition? Type 'delete' to confirm.",
+      "typeDelete": "type 'delete'"
+    },
+    "games": {
+      "title": "Games",
+      "new": "New Game",
+      "status": {
+        "pending": "Pending",
+        "in_progress": "In Progress",
+        "completed": "Completed"
+      },
+      "error": {
+        "missingFields": "Please fill in all fields",
+        "createFailed": "Failed to create game. Please try again."
+      },
+      "noGames": "No games found",
+      "selectTeam": "Select a team",
+      "error": {
+        "sameTeams": "Home and away teams cannot be the same"
+      }
+    },
+    "users": {
+      "title": "User Management",
+      "manageUsersDesc": "View and manage user accounts"
+    },
+    "teams": {
+      "title": "Team Management",
+      "new": "New Team",
+      "name": "Team Name",
+      "shortName": "Short Name",
+      "logo": "Logo URL",
+      "noTeams": "No teams found",
+      "error": {
+        "missingName": "Team name is required",
+        "createFailed": "Failed to create team. Please try again."
+      }
+    }
+  },
+  "cancel": "Cancel",
+  "create": "Create",
+  "submitting": "Submitting...",
+  "competitions": {
+    "title": "All Competitions",
+    "subtitle": "Join competitions and compete with other users",
+    "joined": "Your Competitions",
+    "available": "Available Competitions",
+    "archived": "Archived Competitions",
+    "noJoined": "You haven't joined any competitions yet.",
+    "noAvailable": "No competitions available at the moment.",
+    "noArchived": "No archived competitions.",
+    "view": "View",
+    "join": "Join",
+    "viewResults": "View Results"
+  },
+  "stats": {
+    "title": "Statistics",
+    "subtitle": "Advanced statistics and analytics for your predictions",
+    "featureInDevelopment": "Feature in Development",
+    "description": "We're working hard to bring you comprehensive statistics and analytics. This feature will include detailed performance metrics, prediction accuracy, historical trends, and much more!",
+    "comingSoon": "Coming Soon",
+    "developmentNotice": "This page is in development and all data shown is fictitious for demonstration purposes.",
+    "personalStats": "Your Personal Statistics",
+    "globalLeaderboards": "Global Leaderboards",
+    "palmares": "Palmares - Competition Winners",
+    "allTimeRanking": "All-time Ranking",
+    "outOfUsers": "Out of {{count}} users",
+    "avgPointsGame": "Avg Points/Game",
+    "basedOnGames": "Based on {{count}} games",
+    "longestStreak": "Longest Streak",
+    "longestStreakPoints": "Longest Streak (Points)",
+    "longestExactScoreStreak": "Longest Exact Score Streak",
+    "gamesWithPoints": "Games with points",
+    "exactScorePredictions": "Exact score predictions",
+    "competitionsWon": "Competitions Won",
+    "totalVictories": "Total victories",
+    "lastGamesPerformance": "Last 10 Games Performance",
+    "mostRecent": "Most recent →",
+    "oldest": "← Oldest",
+    "scoreExplanation": "3 = Exact score, 1 = Correct result, 0 = No points",
+    "topPlayersAllTime": "Top Players (All-time Points)",
+    "bestAverage": "Best Average (Min. 50 games)",
+    "longestStreaksAllTime": "Longest Streaks All Time",
+    "longestStreaksPointsAllTime": "Longest Streaks (Points) All Time",
+    "longestExactScoreStreaksAllTime": "Longest Exact Score Streaks All Time",
+    "mostCompetitionsWon": "Most Competitions Won",
+    "games": "games",
+    "competition": "Competition",
+    "period": "Period",
+    "winner": "Winner",
+    "points": "Points",
+    "participants": "Participants",
+    "realDataNotice": "This page shows the planned structure with placeholder data. Real statistics will be calculated from your actual predictions and competition results.",
+    "placeholderData": {
+      "players": {
+        "alexChampion": "Alex Champion",
+        "mariePredictor": "Marie Predictor",
+        "johnAnalyst": "John Analyst",
+        "sarahWinner": "Sarah Winner",
+        "mikeExpert": "Mike Expert",
+        "emmaPrecise": "Emma Precise",
+        "davidSharp": "David Sharp",
+        "lisaAccurate": "Lisa Accurate",
+        "tomConsistent": "Tom Consistent",
+        "annaSmart": "Anna Smart"
+      },
+      "competitions": {
+        "euro2024": "Euro 2024",
+        "worldCup2022": "World Cup 2022",
+        "premierLeague2324": "Premier League 2023-24",
+        "championsLeague2024": "Champions League 2024",
+        "laLiga2324": "La Liga 2023-24"
+      },
+      "periods": {
+        "junJul2024": "Jun-Jul 2024",
+        "novDec2022": "Nov-Dec 2022",
+        "aug2023May2024": "Aug 2023 - May 2024",
+        "sep2023Jun2024": "Sep 2023 - Jun 2024"
+      }
+    },
+    "features": {
+      "performanceAnalytics": {
+        "title": "Performance Analytics",
+        "description": "Track your prediction accuracy"
+      },
+      "trendAnalysis": {
+        "title": "Trend Analysis",
+        "description": "See your progress over time"
+      },
+      "historicalData": {
+        "title": "Historical Data",
+        "description": "View past competitions"
+      },
+      "detailedReports": {
+        "title": "Detailed Reports",
+        "description": "Export your statistics"
+      }
+    }
+  },
+  "profile": {
+    "title": "My Profile",
+    "subtitle": "Manage your personal information and account settings",
+    "information": "Profile Information",
+    "editProfile": "Edit Profile",
+    "editMode": "Edit Profile",
+    "cancel": "Cancel",
+    "saveChanges": "Save Changes",
+    "saving": "Saving...",
+    "fullName": "Full Name",
+    "emailAddress": "Email Address",
+    "newPassword": "New Password",
+    "role": "Role",
+    "memberSince": "Member Since",
+    "profilePicture": "Profile Picture",
+    "useUrl": "Use URL",
+    "uploadFile": "Upload File",
+    "uploadFileText": "Upload a file",
+    "dragDrop": "or drag and drop",
+    "fileTypes": "PNG, JPG, GIF up to 2MB",
+    "remove": "Remove",
+    "preview": "Preview",
+    "placeholders": {
+      "fullName": "Enter your full name",
+      "email": "Enter your email",
+      "password": "Leave blank to keep current password",
+      "profileUrl": "https://example.com/image.jpg"
+    },
+    "helpText": {
+      "password": "Leave blank to keep your current password",
+      "role": "Role cannot be changed"
+    },
+    "messages": {
+      "updateSuccess": "Profile updated successfully!",
+      "updateError": "Failed to update profile",
+      "loadError": "Failed to load profile",
+      "nameEmailRequired": "Name and email are required",
+      "fileTooLarge": "File size must be less than 2MB",
+      "uploadError": "Failed to upload file"
+    }
+  }
+} 

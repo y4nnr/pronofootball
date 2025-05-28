@@ -1,0 +1,145 @@
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl", "linux-arm64-openssl-1.1.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(cuid())
+  name          String
+  email         String   @unique
+  hashedPassword String
+  role          String   @default("user")
+  competitions  CompetitionUser[]
+  bets          Bet[]
+  stats         UserStats?
+  competitionsWon Competition[] @relation("CompetitionWinner")
+  competitionsLastPlace Competition[] @relation("CompetitionLastPlace")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  profilePictureUrl String?
+  needsPasswordChange Boolean @default(false)
+}
+
+model UserStats {
+  id                String   @id @default(cuid())
+  user              User     @relation(fields: [userId], references: [id])
+  userId            String   @unique
+  totalPredictions  Int      @default(0)
+  totalPoints       Int      @default(0)
+  accuracy          Float    @default(0)
+  wins              Int      @default(0)
+  longestStreak     Int      @default(0)
+  exactScoreStreak  Int      @default(0)
+  updatedAt         DateTime @updatedAt
+}
+
+model Competition {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  logo        String?
+  startDate   DateTime
+  endDate     DateTime
+  status      String   @default("upcoming")
+  users       CompetitionUser[]
+  games       Game[]
+  winner      User?    @relation("CompetitionWinner", fields: [winnerId], references: [id])
+  winnerId    String?
+  lastPlace   User?    @relation("CompetitionLastPlace", fields: [lastPlaceId], references: [id])
+  lastPlaceId String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model CompetitionUser {
+  id            String   @id @default(cuid())
+  competition   Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+  competitionId String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId        String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([competitionId, userId])
+}
+
+model Team {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  shortName   String?
+  logo        String?
+  category    TeamCategory @default(NATIONAL)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  homeGames   Game[]   @relation("HomeTeam")
+  awayGames   Game[]   @relation("AwayTeam")
+}
+
+model Game {
+  id          String   @id @default(cuid())
+  competition Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+  competitionId String
+  homeTeam    Team     @relation("HomeTeam", fields: [homeTeamId], references: [id])
+  homeTeamId  String
+  awayTeam    Team     @relation("AwayTeam", fields: [awayTeamId], references: [id])
+  awayTeamId  String
+  date        DateTime
+  status      GameStatus @default(UPCOMING)
+  homeScore   Int?
+  awayScore   Int?
+  bets        Bet[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Bet {
+  id        String   @id @default(cuid())
+  game      Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  gameId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  score1    Int
+  score2    Int
+  points    Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([gameId, userId])
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum CompetitionStatus {
+  UPCOMING
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum GameStatus {
+  UPCOMING
+  LIVE
+  FINISHED
+  CANCELLED
+}
+
+enum BetStatus {
+  PENDING
+  WON
+  LOST
+  CANCELLED
+}
+
+enum TeamCategory {
+  NATIONAL
+  CLUB
+}
+

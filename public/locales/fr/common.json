@@ -1,0 +1,277 @@
+{
+  "welcome": "Bienvenue sur PronoFootball",
+  "getStarted": "Commencer",
+  "goToDashboard": "Aller au Tableau de Bord",
+  "signIn": "Connectez-vous à votre compte",
+  "email": "Adresse e-mail",
+  "password": "Mot de passe",
+  "signInButton": "Se connecter",
+  "signingIn": "Connexion en cours...",
+  "dashboard": {
+    "welcome": "Bienvenue",
+    "overview": "Voici un aperçu de votre activité",
+    "loading": "Chargement du tableau de bord...",
+    "logout": "Déconnexion",
+    "title": "Tableau de Bord",
+    "subtitle": "Bienvenue sur votre tableau de bord personnel",
+    "stats": {
+      "title": "Vos Statistiques",
+      "totalPredictions": "Prédictions Totales",
+      "accuracy": "Précision",
+      "currentStreak": "Série Actuelle",
+      "rank": "Classement",
+      "noStats": "Aucune statistique disponible pour le moment"
+    },
+    "competitions": {
+      "title": "Compétitions Actives",
+      "start": "Date de Début",
+      "end": "Date de Fin",
+      "noCompetitions": "Aucune compétition active"
+    },
+    "news": {
+      "title": "Dernières Actualités",
+      "noNews": "Aucune actualité disponible",
+      "welcome": {
+        "title": "Bienvenue sur PronoFootball !",
+        "content": "Commencez à faire vos prédictions et rivalisez avec les autres utilisateurs."
+      },
+      "euro2024": {
+        "title": "Compétition Euro 2024",
+        "content": "La compétition de prédictions pour l'Euro 2024 est maintenant en ligne ! Faites vos prédictions pour les prochains matchs."
+      },
+      "newFeature": {
+        "title": "Nouvelle Fonctionnalité : Mises à Jour en Direct",
+        "content": "Recevez des mises à jour en temps réel sur les scores des matchs et vos résultats de prédictions."
+      },
+      "maintenance": {
+        "title": "Maintenance Planifiée",
+        "content": "La plateforme sera en maintenance le dimanche 10 mars, de 2h à 4h UTC."
+      }
+    },
+    "nav": {
+      "title": "Accès Rapide",
+      "competitions": "Voir Toutes les Compétitions",
+      "stats": "Statistiques Détaillées",
+      "profile": "Modifier le Profil",
+      "adminConfig": "Configuration Admin",
+      "home": "Accueil",
+      "predictions": "Mes Compétitions",
+      "leaderboard": "Classement",
+      "stats": "Statistiques",
+      "ongoingCompetition": "Compétition en Cours"
+    },
+    "admin": {
+      "title": "Contrôles Admin",
+      "welcome": "Bienvenue sur le Tableau de Bord Admin",
+      "manageCompetitions": "Gérer les Compétitions",
+      "manageCompetitionsDesc": "Créer et gérer les compétitions de pronostics",
+      "manageUsers": "Gérer les Utilisateurs",
+      "manageUsersDesc": "Voir et gérer les comptes utilisateurs",
+      "manageTeams": "Gérer les Équipes",
+      "manageTeamsDesc": "Ajouter, modifier et gérer les équipes de football"
+    }
+  },
+  "admin": {
+    "title": "Contrôles Admin",
+    "welcome": "Bienvenue sur le Tableau de Bord Admin",
+    "manageCompetitions": "Gérer les Compétitions",
+    "manageCompetitionsDesc": "Créer et gérer les compétitions de pronostics",
+    "manageUsers": "Gérer les Utilisateurs",
+    "manageUsersDesc": "Voir et gérer les comptes utilisateurs",
+    "manageTeams": "Gérer les Équipes",
+    "manageTeamsDesc": "Ajouter, modifier et gérer les équipes de football",
+    "competitions": {
+      "title": "Gestion des Compétitions",
+      "new": "Nouvelle Compétition",
+      "start": "Date de Début",
+      "end": "Date de Fin",
+      "status": {
+        "active": "Active",
+        "pending": "En Attente",
+        "completed": "Terminée",
+        "upcoming": "À Venir"
+      },
+      "noCompetitions": "Aucune compétition trouvée",
+      "notFound": "Compétition introuvable",
+      "viewAll": "Voir Toutes les Compétitions",
+      "deleteConfirmationTitle": "Confirmer la Suppression",
+      "deleteConfirmationText": "Voulez-vous vraiment supprimer cette compétition ? Tapez 'delete' pour confirmer.",
+      "typeDelete": "tapez 'delete'"
+    },
+    "games": {
+      "title": "Matchs",
+      "new": "Nouveau Match",
+      "status": {
+        "pending": "En Attente",
+        "in_progress": "En Cours",
+        "completed": "Terminé"
+      },
+      "error": {
+        "missingFields": "Veuillez remplir tous les champs",
+        "createFailed": "Échec de la création du match. Veuillez réessayer."
+      },
+      "noGames": "Aucun match trouvé",
+      "selectTeam": "Sélectionnez une équipe",
+      "error": {
+        "sameTeams": "L'équipe à domicile et l'équipe à l'extérieur ne peuvent pas être les mêmes"
+      }
+    },
+    "users": {
+      "title": "Gestion des Utilisateurs",
+      "manageUsersDesc": "Voir et gérer les comptes utilisateurs"
+    },
+    "teams": {
+      "title": "Gestion des Équipes",
+      "new": "Nouvelle Équipe",
+      "name": "Nom de l'Équipe",
+      "shortName": "Nom Court",
+      "logo": "URL du Logo",
+      "noTeams": "Aucune équipe trouvée",
+      "error": {
+        "missingName": "Le nom de l'équipe est requis",
+        "createFailed": "Échec de la création de l'équipe. Veuillez réessayer."
+      }
+    }
+  },
+  "cancel": "Annuler",
+  "create": "Créer",
+  "submitting": "Envoi en cours...",
+  "competitions": {
+    "title": "Toutes les compétitions",
+    "subtitle": "Rejoignez des compétitions et rivalisez avec d'autres utilisateurs",
+    "joined": "Vos Compétitions",
+    "available": "Compétitions Disponibles",
+    "archived": "Compétitions Archivées",
+    "noJoined": "Vous n'avez pas encore rejoint de compétition.",
+    "noAvailable": "Aucune compétition disponible pour le moment.",
+    "noArchived": "Aucune compétition archivée.",
+    "view": "Voir",
+    "join": "Rejoindre",
+    "viewResults": "Voir les résultats"
+  },
+  "stats": {
+    "title": "Statistiques",
+    "subtitle": "Statistiques avancées et analyses pour vos prédictions",
+    "featureInDevelopment": "Fonctionnalité en Développement",
+    "description": "Nous travaillons dur pour vous apporter des statistiques et des analyses complètes. Cette fonctionnalité inclura des métriques de performance détaillées, la précision des prédictions, les tendances historiques, et bien plus encore !",
+    "comingSoon": "Bientôt Disponible",
+    "developmentNotice": "Cette page est en développement et toutes les données affichées sont fictives à des fins de démonstration.",
+    "personalStats": "Vos Statistiques Personnelles",
+    "globalLeaderboards": "Classements Globaux",
+    "palmares": "Palmarès - Gagnants des Compétitions",
+    "allTimeRanking": "Classement Général",
+    "outOfUsers": "Sur {{count}} utilisateurs",
+    "avgPointsGame": "Moy. Points/Match",
+    "basedOnGames": "Basé sur {{count}} matchs",
+    "longestStreak": "Plus Longue Série",
+    "longestStreakPoints": "Plus Longue Série (Points)",
+    "longestExactScoreStreak": "Plus Longue Série Score Exact",
+    "gamesWithPoints": "Matchs avec points",
+    "exactScorePredictions": "Prédictions score exact",
+    "competitionsWon": "Compétitions Gagnées",
+    "totalVictories": "Victoires totales",
+    "lastGamesPerformance": "Performance des 10 Derniers Matchs",
+    "mostRecent": "Plus récent →",
+    "oldest": "← Plus ancien",
+    "scoreExplanation": "3 = Score exact, 1 = Résultat correct, 0 = Aucun point",
+    "topPlayersAllTime": "Meilleurs Joueurs (Points Totaux)",
+    "bestAverage": "Meilleure Moyenne (Min. 50 matchs)",
+    "longestStreaksAllTime": "Plus Longues Séries de Tous les Temps",
+    "longestStreaksPointsAllTime": "Plus Longues Séries (Points) de Tous les Temps",
+    "longestExactScoreStreaksAllTime": "Plus Longues Séries Score Exact de Tous les Temps",
+    "mostCompetitionsWon": "Plus de Compétitions Gagnées",
+    "games": "matchs",
+    "competition": "Compétition",
+    "period": "Période",
+    "winner": "Gagnant",
+    "points": "Points",
+    "participants": "Participants",
+    "realDataNotice": "Cette page montre la structure prévue avec des données fictives. Les vraies statistiques seront calculées à partir de vos prédictions et résultats de compétitions réels.",
+    "placeholderData": {
+      "players": {
+        "alexChampion": "Alex Champion",
+        "mariePredictor": "Marie Prédicteur",
+        "johnAnalyst": "Jean Analyste",
+        "sarahWinner": "Sarah Gagnante",
+        "mikeExpert": "Mike Expert",
+        "emmaPrecise": "Emma Précise",
+        "davidSharp": "David Précis",
+        "lisaAccurate": "Lisa Exacte",
+        "tomConsistent": "Tom Régulier",
+        "annaSmart": "Anna Intelligente"
+      },
+      "competitions": {
+        "euro2024": "Euro 2024",
+        "worldCup2022": "Coupe du Monde 2022",
+        "premierLeague2324": "Premier League 2023-24",
+        "championsLeague2024": "Ligue des Champions 2024",
+        "laLiga2324": "La Liga 2023-24"
+      },
+      "periods": {
+        "junJul2024": "Juin-Juil 2024",
+        "novDec2022": "Nov-Déc 2022",
+        "aug2023May2024": "Août 2023 - Mai 2024",
+        "sep2023Jun2024": "Sep 2023 - Juin 2024"
+      }
+    },
+    "features": {
+      "performanceAnalytics": {
+        "title": "Analyses de Performance",
+        "description": "Suivez la précision de vos prédictions"
+      },
+      "trendAnalysis": {
+        "title": "Analyse des Tendances",
+        "description": "Voyez vos progrès au fil du temps"
+      },
+      "historicalData": {
+        "title": "Données Historiques",
+        "description": "Consultez les compétitions passées"
+      },
+      "detailedReports": {
+        "title": "Rapports Détaillés",
+        "description": "Exportez vos statistiques"
+      }
+    }
+  },
+  "profile": {
+    "title": "Mon Profil",
+    "subtitle": "Gérez vos informations personnelles et paramètres de compte",
+    "information": "Informations du Profil",
+    "editProfile": "Modifier le Profil",
+    "editMode": "Modifier le Profil",
+    "cancel": "Annuler",
+    "saveChanges": "Enregistrer les Modifications",
+    "saving": "Enregistrement...",
+    "fullName": "Nom Complet",
+    "emailAddress": "Adresse E-mail",
+    "newPassword": "Nouveau Mot de Passe",
+    "role": "Rôle",
+    "memberSince": "Membre Depuis",
+    "profilePicture": "Photo de Profil",
+    "useUrl": "Utiliser une URL",
+    "uploadFile": "Télécharger un Fichier",
+    "uploadFileText": "Télécharger un fichier",
+    "dragDrop": "ou glisser-déposer",
+    "fileTypes": "PNG, JPG, GIF jusqu'à 2MB",
+    "remove": "Supprimer",
+    "preview": "Aperçu",
+    "placeholders": {
+      "fullName": "Entrez votre nom complet",
+      "email": "Entrez votre adresse e-mail",
+      "password": "Laissez vide pour conserver le mot de passe actuel",
+      "profileUrl": "https://exemple.com/image.jpg"
+    },
+    "helpText": {
+      "password": "Laissez vide pour conserver votre mot de passe actuel",
+      "role": "Le rôle ne peut pas être modifié"
+    },
+    "messages": {
+      "updateSuccess": "Profil mis à jour avec succès !",
+      "updateError": "Échec de la mise à jour du profil",
+      "loadError": "Échec du chargement du profil",
+      "nameEmailRequired": "Le nom et l'e-mail sont requis",
+      "fileTooLarge": "La taille du fichier doit être inférieure à 2MB",
+      "uploadError": "Échec du téléchargement du fichier"
+    }
+  }
+} 

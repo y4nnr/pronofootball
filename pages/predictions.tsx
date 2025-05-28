@@ -1,0 +1,178 @@
+import { useEffect, useState } from 'react';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/router';
+import { useLanguage } from '../contexts/LanguageContext';
+import Link from 'next/link';
+import axios, { AxiosResponse } from 'axios';
+
+interface Team {
+  id: string;
+  name: string;
+  logo?: string;
+}
+
+interface User {
+  name: string;
+  profilePictureUrl?: string;
+}
+
+interface Bet {
+  id: string;
+  score1: number;
+  score2: number;
+  userId: string;
+  user: User;
+}
+
+interface Game {
+  id: string;
+  date: string;
+  status: string;
+  homeTeam: Team;
+  awayTeam: Team;
+  homeScore?: number;
+  awayScore?: number;
+  bets: Bet[];
+}
+
+interface UserBet {
+  gameId: string;
+  homeScore: number;
+  awayScore: number;
+}
+
+export default function MyCompetitionsPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const { language } = useLanguage();
+  const [joinedOngoing, setJoinedOngoing] = useState([]);
+  const [openNotJoined, setOpenNotJoined] = useState([]);
+  const [joinedTerminated, setJoinedTerminated] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [saving, setSaving] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+
+  const translations = {
+    fr: {
+      title: 'Mes Pronostics',
+      betPlaced: 'Pronostic placé',
+      noBetYet: 'Pas encore de pronostic',
+      openForPredictions: 'Pronostics ouverts',
+      closed: 'Fermé',
+      yourPrediction: 'Votre Pronostic',
+      betConfirmed: 'Pronostic confirmé',
+      saving: 'Enregistrement...',
+      updateBet: 'Modifier',
+      placeBet: 'Placer un pronostic',
+      allPredictions: 'Tous les Pronostics',
+      otherPredictions: 'Autres Pronostics',
+      noOtherPredictions: "Pas encore d'autres pronostics",
+      betSaved: 'Pronostic enregistré !',
+      loading: 'Chargement...',
+      error: 'Erreur',
+      betCount: {
+        one: 'personne a placé un pronostic',
+        other: 'personnes ont placé un pronostic'
+      }
+    },
+    en: {
+      title: 'My Predictions',
+      betPlaced: 'Bet placed',
+      noBetYet: 'No bet yet',
+      openForPredictions: 'Open for predictions',
+      closed: 'Closed',
+      yourPrediction: 'Your Prediction',
+      betConfirmed: 'Bet confirmed',
+      saving: 'Saving...',
+      updateBet: 'Update Bet',
+      placeBet: 'Place Bet',
+      allPredictions: 'All Predictions',
+      otherPredictions: 'Other Predictions',
+      noOtherPredictions: 'No other predictions yet',
+      betSaved: 'Bet saved!',
+      loading: 'Loading...',
+      error: 'Error',
+      betCount: {
+        one: 'person has placed a bet',
+        other: 'people have placed a bet'
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/login');
+    }
+  }, [status, router]);
+
+  useEffect(() => {
+    if (!session) return;
+    setLoading(true);
+    axios.get('/api/competitions/my').then((res: AxiosResponse<any>) => {
+      setJoinedOngoing(res.data.joinedOngoing);
+      setOpenNotJoined(res.data.openNotJoined);
+      setJoinedTerminated(res.data.joinedTerminated);
+      setLoading(false);
+    });
+  }, [session]);
+
+  const handleJoin = async (competitionId: string) => {
+    await axios.post(`/api/competitions/join`, { competitionId });
+    // Refresh lists
+    const res = await axios.get('/api/competitions/my');
+    setJoinedOngoing(res.data.joinedOngoing);
+    setOpenNotJoined(res.data.openNotJoined);
+    setJoinedTerminated(res.data.joinedTerminated);
+  };
+
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center text-gray-800">{translations[language].loading}</div>;
+  }
+  if (error) {
+    return <div className="min-h-screen flex items-center justify-center text-red-600">{translations[language].error}</div>;
+  }
+
+  return (
+    <div className="max-w-3xl mx-auto py-8">
+      <h1 className="text-2xl font-bold mb-6">My Competitions</h1>
+      <section className="mb-8">
+        <h2 className="text-xl font-semibold mb-2">Ongoing Competitions</h2>
+        {joinedOngoing.length === 0 ? <p>No ongoing competitions.</p> : (
+          <ul>
+            {joinedOngoing.map((comp: any) => (
+              <li key={comp.id} className="mb-2">
+                <Link href={`/competitions/${comp.id}`} className="text-blue-600 underline">{comp.name}</Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+      <section className="mb-8">
+        <h2 className="text-xl font-semibold mb-2">Open Competitions</h2>
+        {openNotJoined.length === 0 ? <p>No open competitions to join.</p> : (
+          <ul>
+            {openNotJoined.map((comp: any) => (
+              <li key={comp.id} className="mb-2 flex items-center gap-2">
+                <span>{comp.name}</span>
+                <button className="ml-2 px-2 py-1 bg-green-600 text-white rounded" onClick={() => handleJoin(comp.id)}>Join</button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+      <section>
+        <h2 className="text-xl font-semibold mb-2">Terminated Competitions</h2>
+        {joinedTerminated.length === 0 ? <p>No terminated competitions.</p> : (
+          <ul>
+            {joinedTerminated.map((comp: any) => (
+              <li key={comp.id} className="mb-2">
+                <Link href={`/competitions/${comp.id}`} className="text-blue-600 underline">{comp.name}</Link>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+    </div>
+  );
+} 
