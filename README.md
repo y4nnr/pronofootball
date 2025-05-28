@@ -15,114 +15,179 @@ A comprehensive football prediction platform built with Next.js, featuring real-
 ### Statistics & Analytics
 - **Personal Stats Dashboard**: 
   - All-time ranking and average points per game
-  - Longest streaks (points and exact scores) with date ranges
+  - Longest streaks (points and exact scores) with start/end dates
   - Last 10 games performance with visual timeline
   - Competition wins and trophy cabinet
-- **Global Leaderboards**:
-  - Top players by total points
-  - Best average performers (minimum 5 games)
-  - Longest streaks with start/end dates
-  - Competition winners hall of fame
-- **Real Data Integration**: Based on actual Euro 2016 historical results
+- **Global Leaderboards**: 
+  - Top players by total points (with games played count)
+  - Best averages and accuracy rates
+  - Longest streaks with date ranges
+  - Competition winners and achievements
+- **Visual Analytics**: Color-coded performance indicators and interactive charts
 
-### User Experience
-- **Multilingual Support**: English and French localization
-- **Responsive Design**: Mobile-first approach with Tailwind CSS
-- **Real-time Updates**: Live score updates and instant leaderboard changes
-- **Profile Management**: Custom avatars and user preferences
-
-## 🛠 Tech Stack
-
-- **Frontend**: Next.js 15, React, TypeScript
-- **Styling**: Tailwind CSS, Heroicons
-- **Authentication**: NextAuth.js with credentials provider
-- **Database**: PostgreSQL with Prisma ORM
-- **Deployment**: Docker containerization
-- **Internationalization**: next-i18next
-
-## 📊 Database Schema
-
-### Core Models
-- **Users**: Authentication and profile management
-- **UserStats**: Performance tracking and statistics
-- **Competitions**: Tournament organization
-- **Teams**: National and club teams with logos
-- **Games**: Match scheduling and results
-- **Bets**: User predictions and scoring
-
-### Real Data
-- **8 Real Users**: Authentic Euro 2016 participants with final rankings
-- **51 Historical Games**: Complete Euro 2016 tournament results
-- **408 Realistic Bets**: Distributed across all matches with proper scoring
-- **29 Teams**: 24 National + 5 Club teams with Wikipedia flag logos
-
-## 🚀 Getting Started
+## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 18+ 
+- Node.js 18+ and npm
 - Docker and Docker Compose
-- PostgreSQL (via Docker)
+- Git
 
 ### Installation
 
-1. **Clone the repository**
+1. **Clone the repository**:
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/y4nnr/pronofootball.git
    cd pronofootball
    ```
 
-2. **Install dependencies**
+2. **Install dependencies**:
    ```bash
    npm install
    ```
 
-3. **Set up environment variables**
+3. **Set up environment variables**:
    ```bash
    cp .env.example .env
    # Edit .env with your configuration
    ```
 
-4. **Start the database**
+4. **Start the database**:
    ```bash
    docker-compose up -d postgres
    ```
 
-5. **Run database migrations**
+5. **Run database migrations**:
    ```bash
    npx prisma migrate dev
-   npx prisma db seed
+   npx prisma generate
    ```
 
-6. **Start the development server**
+6. **Start the development server**:
    ```bash
    npm run dev
    ```
 
-Visit `http://localhost:3000` to access the application.
+7. **Access the application**:
+   - Open [http://localhost:3000](http://localhost:3000)
+   - Login with admin credentials: `admin@pronofootball.com` / `admin123`
 
-### Default Admin Account
-- **Email**: admin@pronofootball.com
-- **Password**: admin123
+## 📊 Sample Data
 
-## 📁 Project Structure
+The application comes with complete Euro 2016 historical data:
+- **8 Real Users**: Authentic participants with final rankings
+- **51 Historical Games**: Complete tournament results
+- **408 Realistic Bets**: Distributed across all matches
+- **29 Teams**: National and club teams with Wikipedia logos
 
+## 🔧 Development
+
+### Database Management
+
+#### Backup Database
+```bash
+# Create backup
+./scripts/backup-database.sh
+
+# Restore from backup
+./scripts/restore-database.sh
+```
+
+#### Reset Database
+```bash
+# Stop application
+docker-compose down
+
+# Remove database volume
+docker volume rm pronofootball_postgres_data
+
+# Restart and restore
+docker-compose up -d postgres
+./scripts/restore-database.sh
+```
+
+### Code Deployment
+
+#### Manual Deployment
+```bash
+# Commit changes
+git add .
+git commit -m "Your commit message"
+
+# Push to GitHub
+git push origin main
+```
+
+#### Automated Deployment
+```bash
+# Use the deployment script
+./scripts/deploy.sh
+```
+
+The deployment script will:
+- Check for uncommitted changes
+- Create database backup
+- Push code to GitHub
+- Optionally create GitHub releases with data
+
+## 🗄️ Data Management
+
+### Backup Strategy
+- **Local Backups**: Automated scripts for PostgreSQL dumps
+- **GitHub Integration**: Code versioning and release management
+- **Data Preservation**: Complete database backups with releases
+
+### GitHub Integration
+- **Repository**: [https://github.com/y4nnr/pronofootball](https://github.com/y4nnr/pronofootball)
+- **Releases**: Tagged versions with database snapshots
+- **Documentation**: Comprehensive setup and deployment guides
+
+### Backup Files Location
+```
+backups/
+├── pronofootball_backup_20240529_120000.sql.gz
+├── pronofootball_backup_20240528_120000.sql.gz
+└── ...
+```
+
+## 🏗️ Architecture
+
+### Tech Stack
+- **Frontend**: Next.js 15, React, TypeScript, Tailwind CSS
+- **Backend**: Next.js API Routes, NextAuth.js
+- **Database**: PostgreSQL with Prisma ORM
+- **Infrastructure**: Docker, Docker Compose
+- **Deployment**: GitHub, Vercel-ready
+
+### Project Structure
 ```
 pronofootball/
-├── components/          # Reusable UI components
-├── contexts/           # React context providers
-├── hooks/              # Custom React hooks
-├── lib/                # Utility libraries and configurations
+├── components/          # React components
 ├── pages/              # Next.js pages and API routes
-│   ├── api/           # Backend API endpoints
-│   ├── admin/         # Admin panel pages
-│   └── ...            # Application pages
-├── prisma/            # Database schema and migrations
-├── public/            # Static assets
-├── styles/            # Global styles
-└── docker-compose.yml # Docker configuration
+├── prisma/             # Database schema and migrations
+├── public/             # Static assets
+├── scripts/            # Database and deployment scripts
+├── docs/               # Documentation
+├── backups/            # Database backups
+└── docker-compose.yml  # Docker configuration
 ```
 
-## 🔧 API Endpoints
+## 🔐 Environment Variables
+
+Create a `.env` file with:
+
+```env
+# Database
+DATABASE_URL="postgresql://postgres:password@localhost:5432/pronofootball"
+
+# NextAuth.js
+NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_SECRET="your-secret-key"
+
+# Optional: External APIs
+FOOTBALL_API_KEY="your-api-key"
+```
+
+## 📱 API Endpoints
 
 ### Authentication
 - `POST /api/auth/signin` - User login
@@ -130,77 +195,78 @@ pronofootball/
 - `GET /api/auth/session` - Current session
 
 ### Statistics
-- `GET /api/stats/leaderboard` - Global leaderboards with streak dates
-- `GET /api/stats/current-user` - Individual user statistics
-- `GET /api/stats/user-performance` - Last 10 games performance
-
-### Betting
-- `GET /api/bets` - User's betting history
-- `POST /api/bets` - Place new bet
-- `PUT /api/bets/[id]` - Update existing bet
+- `GET /api/stats/leaderboard` - Global leaderboards
+- `GET /api/stats/user-performance` - Personal performance
+- `GET /api/stats/current-user` - Individual user stats
 
 ### Admin
 - `GET /api/admin/users` - User management
-- `POST /api/games/[id]/finish` - Finalize game results
+- `POST /api/admin/competitions` - Competition management
 
-## 🎯 Key Features Implemented
+## 🚀 Deployment
 
-### Enhanced Statistics (Latest Updates)
-- **Streak Date Tracking**: Start and end dates for all streaks
-- **Game Count Display**: Number of games played shown for all players
-- **Visual Performance Timeline**: Color-coded bars for last 10 games
-- **Comprehensive Personal Stats**: 5 key metrics with detailed breakdowns
+### Vercel Deployment
+1. Connect your GitHub repository to Vercel
+2. Set environment variables in Vercel dashboard
+3. Deploy automatically on push to main branch
 
-### Data Integrity
-- **Real Historical Data**: Authentic Euro 2016 tournament results
-- **Proper Point Distribution**: Realistic betting patterns and scoring
-- **Admin User Support**: Separate stats calculation for admin users
-- **Fallback Mechanisms**: Graceful handling of missing data
+### Docker Deployment
+```bash
+# Build and run with Docker
+docker-compose up -d
 
-## 🔒 Security Features
+# Access at http://localhost:3000
+```
 
-- **Secure Authentication**: Password hashing with bcrypt
-- **Role-based Access**: Admin and user role separation
-- **API Protection**: Session-based route protection
-- **Input Validation**: Comprehensive data validation
+## 🧪 Testing
 
-## 🌐 Internationalization
+```bash
+# Run tests
+npm test
 
-- **English**: Complete translation
-- **French**: Full localization support
-- **Extensible**: Easy addition of new languages
+# Run with coverage
+npm run test:coverage
 
-## 📈 Performance
+# E2E tests
+npm run test:e2e
+```
 
-- **Optimized Queries**: Efficient database operations with Prisma
-- **Caching**: Strategic API response caching
-- **Image Optimization**: Next.js automatic image optimization
-- **Code Splitting**: Automatic bundle optimization
+## 📈 Monitoring
 
-## 🐳 Docker Support
+### Application Health
+- Database connection monitoring
+- API response time tracking
+- User activity analytics
 
-Complete containerization with:
-- **Multi-stage builds**: Optimized production images
-- **PostgreSQL**: Persistent database container
-- **Development**: Hot-reload support
-- **Production**: Optimized deployment configuration
+### Backup Monitoring
+- Automated backup verification
+- Storage usage tracking
+- Retention policy compliance
 
-## 📝 Contributing
+## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Commit changes: `git commit -m 'Add amazing feature'`
+4. Push to branch: `git push origin feature/amazing-feature`
+5. Open a Pull Request
 
 ## 📄 License
 
-This project is licensed under the MIT License.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🤝 Support
+## 🆘 Support
 
-For support and questions, please open an issue in the GitHub repository.
+### Common Issues
+- **Port conflicts**: Application runs on port 3001 if 3000 is busy
+- **Database connection**: Ensure PostgreSQL container is running
+- **Authentication errors**: Check NEXTAUTH_SECRET configuration
+
+### Getting Help
+- Check the [documentation](docs/)
+- Review [GitHub Issues](https://github.com/y4nnr/pronofootball/issues)
+- Contact: [your-email@example.com](mailto:your-email@example.com)
 
 ---
 
-**PronoFootball** - Making football predictions fun and competitive! ⚽
+**Built with ❤️ for football prediction enthusiasts**
