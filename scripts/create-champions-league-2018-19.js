@@ -417,6 +417,18 @@ async function main() {
     
     console.log(`Found ${users.length} users:`, users.map(u => u.name).join(', '));
     
+    // Add users to competition
+    console.log('🔗 Adding users to competition...');
+    for (const user of users) {
+      await prisma.competitionUser.create({
+        data: {
+          competitionId: competition.id,
+          userId: user.id
+        }
+      });
+    }
+    console.log(`✅ Added ${users.length} users to competition`);
+    
     // Create games
     console.log('⚽ Creating games...');
     const createdGames = [];
