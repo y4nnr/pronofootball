@@ -241,7 +241,6 @@ export default function CompetitionDetails({ competition, competitionStats }: Co
                   <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Points</th>
                   <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Games</th>
                   <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Average</th>
-                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Accuracy</th>
                   <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Exact Scores</th>
                 </tr>
               </thead>
@@ -279,10 +278,7 @@ export default function CompetitionDetails({ competition, competitionStats }: Co
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <div className="text-sm text-gray-900">{player.accuracy.toFixed(1)}%</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <div className="text-sm text-gray-900">{player.exactScores}</div>
+                      <div className="text-sm text-gray-900">0</div>
                     </td>
                   </tr>
                 ))}
@@ -308,7 +304,7 @@ export default function CompetitionDetails({ competition, competitionStats }: Co
             
             <div className="text-center">
               <div className="text-3xl font-bold text-green-600">
-                {competitionStats.reduce((sum, player) => sum + player.exactScores, 0)}
+                0
               </div>
               <div className="text-sm text-gray-600">Total Exact Scores</div>
             </div>
@@ -388,7 +384,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
         const totalPoints = userBets.reduce((sum: number, bet: Bet) => sum + bet.points, 0);
         const totalPredictions = userBets.length;
-        const exactScores = userBets.filter((bet: Bet) => bet.points === 3).length;
+        const exactScores = 0; // Always 0 as requested
         const correctWinners = userBets.filter((bet: Bet) => bet.points === 1).length;
         const accuracy = totalPredictions > 0 ? ((exactScores + correctWinners) / totalPredictions) * 100 : 0;
 

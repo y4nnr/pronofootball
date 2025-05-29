@@ -144,16 +144,45 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Get total user count (excluding admins)
     const totalUsers = usersWithCalculatedStats.length;
 
-    // Add competitions data for Palmarès section
-    const competitionsData = competitions.map((comp: any) => ({
-      id: comp.id,
-      name: comp.name,
-      startDate: comp.startDate,
-      endDate: comp.endDate,
-      status: comp.status,
-      winner: comp.winner,
-      logo: comp.logo
-    }));
+    // Add competitions data for Palmarès section with winner's points
+    const competitionsData = await Promise.all(
+      competitions.map(async (comp: any) => {
+        let winnerPoints = 0;
+        
+        if (comp.winner) {
+          // Get winner's bets for this specific competition
+          const winnerBets = await prisma.bet.findMany({
+            where: {
+              userId: comp.winner.id,
+              game: {
+                competitionId: comp.id
+              }
+            }
+          });
+          
+          winnerPoints = winnerBets.reduce((sum: number, bet: any) => sum + bet.points, 0);
+        }
+        
+        // Get the actual number of participants for this competition
+        const participantCount = await prisma.competitionUser.count({
+          where: {
+            competitionId: comp.id
+          }
+        });
+        
+        return {
+          id: comp.id,
+          name: comp.name,
+          startDate: comp.startDate,
+          endDate: comp.endDate,
+          status: comp.status,
+          winner: comp.winner,
+          winnerPoints,
+          participantCount,
+          logo: comp.logo
+        };
+      })
+    );
 
     res.status(200).json({
       topPlayersByPoints,

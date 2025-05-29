@@ -43,6 +43,8 @@ interface LeaderboardData {
       id: string;
       name: string;
     } | null;
+    winnerPoints: number;
+    participantCount: number;
     logo?: string;
   }>;
 }
@@ -724,18 +726,6 @@ export default function Stats({ currentUser }: { currentUser: any }) {
                     </tr>
                   ) : leaderboardData?.competitions && leaderboardData.competitions.length > 0 ? (
                     leaderboardData.competitions.map((competition, index) => {
-                      // Get winner's points for this specific competition
-                      const getWinnerPoints = (winnerId: string, competitionName: string) => {
-                        const winner = leaderboardData.topPlayersByPoints.find(player => player.id === winnerId);
-                        if (!winner) return 0;
-                        
-                        // For now, we'll show total points since we don't have per-competition breakdown
-                        // This could be improved by adding per-competition stats to the API
-                        if (competitionName.includes('Euro')) return 43; // Renato's Euro 2016 points
-                        if (competitionName.includes('World Cup')) return 47; // Renato's World Cup 2018 points
-                        return 0;
-                      };
-                      
                       return (
                         <tr key={competition.id} className="hover:bg-yellow-50 transition-colors">
                           <td className="px-6 py-4 whitespace-nowrap">
@@ -760,6 +750,7 @@ export default function Stats({ currentUser }: { currentUser: any }) {
                                 <div className="text-sm text-gray-500">
                                   {competition.name.includes('Euro') ? 'European Championship' : 
                                    competition.name.includes('World Cup') ? 'FIFA World Cup' : 
+                                   competition.name.includes('Champions League') ? 'UEFA Champions League' :
                                    'Football Competition'}
                                 </div>
                               </div>
@@ -805,7 +796,7 @@ export default function Stats({ currentUser }: { currentUser: any }) {
                             {competition.winner ? (
                               <>
                                 <div className="text-lg font-bold text-yellow-600">
-                                  {getWinnerPoints(competition.winner.id, competition.name)}
+                                  {competition.winnerPoints}
                                 </div>
                                 <div className="text-sm text-gray-500">points</div>
                               </>
@@ -814,7 +805,7 @@ export default function Stats({ currentUser }: { currentUser: any }) {
                             )}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-center">
-                            <div className="text-sm font-medium text-gray-900">{leaderboardData.totalUsers}</div>
+                            <div className="text-sm font-medium text-gray-900">{competition.participantCount}</div>
                             <div className="text-sm text-gray-500">players</div>
                           </td>
                         </tr>
