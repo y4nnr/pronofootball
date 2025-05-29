@@ -5,6 +5,8 @@ import Navbar from '../components/Navbar';
 import { ChartBarIcon, TrophyIcon, FireIcon, CalendarIcon, UserGroupIcon, StarIcon } from '@heroicons/react/24/outline';
 import { useEffect, useState } from 'react';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
 
 interface UserStats {
   totalPredictions: number;
@@ -45,6 +47,7 @@ interface LeaderboardData {
     } | null;
     winnerPoints: number;
     participantCount: number;
+    gameCount: number;
     logo?: string;
   }>;
 }
@@ -80,6 +83,7 @@ interface LastGamePerformance {
 
 export default function Stats({ currentUser }: { currentUser: any }) {
   const { t } = useTranslation('common');
+  const router = useRouter();
   const [leaderboardData, setLeaderboardData] = useState<LeaderboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [userProfilePictures, setUserProfilePictures] = useState<UserProfilePicture>({});
@@ -111,7 +115,7 @@ export default function Stats({ currentUser }: { currentUser: any }) {
           if (userInLeaderboard) {
             const ranking = data.topPlayersByPoints.findIndex((user: LeaderboardUser) => user.id === currentUser.id) + 1;
             const averagePoints = userInLeaderboard.stats.totalPredictions > 0 
-              ? Math.round((userInLeaderboard.stats.totalPoints / userInLeaderboard.stats.totalPredictions) * 100) / 100
+              ? parseFloat((userInLeaderboard.stats.totalPoints / userInLeaderboard.stats.totalPredictions).toFixed(2))
               : 0;
             
             setCurrentUserStats({
@@ -205,7 +209,7 @@ export default function Stats({ currentUser }: { currentUser: any }) {
     
     const pointsStreaks = [...leaderboardData.topPlayersByPoints]
       .sort((a, b) => b.stats.longestStreak - a.stats.longestStreak)
-      .slice(0, 8)
+      .slice(0, 25)
       .map(user => ({
         name: user.name,
         streak: user.stats.longestStreak,
@@ -216,7 +220,7 @@ export default function Stats({ currentUser }: { currentUser: any }) {
 
     const exactScoreStreaks = [...leaderboardData.topPlayersByPoints]
       .sort((a, b) => b.stats.exactScoreStreak - a.stats.exactScoreStreak)
-      .slice(0, 8)
+      .slice(0, 25)
       .map(user => ({
         name: user.name,
         streak: user.stats.exactScoreStreak,
@@ -235,7 +239,7 @@ export default function Stats({ currentUser }: { currentUser: any }) {
     return [...leaderboardData.topPlayersByPoints]
       .sort((a, b) => b.stats.wins - a.stats.wins)
       .filter(user => user.stats.wins > 0)
-      .slice(0, 6)
+      .slice(0, 10)
       .map(user => {
         // Get the actual competitions this user won
         const wonCompetitions = leaderboardData.competitions
@@ -275,15 +279,6 @@ export default function Stats({ currentUser }: { currentUser: any }) {
         {/* Real Data Notice */}
         {!loading && leaderboardData && (
           <div className="bg-green-50 border border-green-200 rounded-xl p-6 text-center mb-8">
-            <div className="inline-flex items-center px-4 py-2 rounded-full bg-green-100 text-green-800 text-sm font-medium mb-4">
-              <svg className="h-4 w-4 text-green-600 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-              Real Statistics
-            </div>
-            <p className="text-green-700 mb-2">
-              {t('stats.realDataHeader', { count: leaderboardData.totalUsers })}
-            </p>
             <p className="text-green-600 text-sm">
               <strong>{t('note')}:</strong> {t('stats.streakNotice')}
             </p>
@@ -295,10 +290,10 @@ export default function Stats({ currentUser }: { currentUser: any }) {
           <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 text-center mb-8">
             <div className="inline-flex items-center px-4 py-2 rounded-full bg-blue-100 text-blue-800 text-sm font-medium mb-4">
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
-              Loading Real Data...
+              {t('stats.loadingRealData')}
             </div>
             <p className="text-blue-700">
-              Fetching statistics from your real users...
+              {t('stats.fetchingStatistics')}
             </p>
           </div>
         )}
@@ -311,7 +306,7 @@ export default function Stats({ currentUser }: { currentUser: any }) {
               {t('stats.personalStats')}
             </h2>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 mb-6">
               {/* All-time Ranking */}
               <div className="bg-white rounded-xl shadow-md border border-gray-300 p-6">
                 <div className="flex items-center justify-between mb-4">
@@ -322,11 +317,21 @@ export default function Stats({ currentUser }: { currentUser: any }) {
                 <p className="text-sm text-gray-600">{t('stats.outOfUsers', { count: leaderboardData?.totalUsers || 0 })}</p>
               </div>
 
+              {/* Total Points All Time */}
+              <div className="bg-white rounded-xl shadow-md border border-gray-300 p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <StarIcon className="h-8 w-8 text-blue-500" />
+                  <span className="text-2xl font-bold text-gray-900">{currentUserStats.totalPoints}</span>
+                </div>
+                <h3 className="font-semibold text-gray-900">{t('stats.pointsAllTime')}</h3>
+                <p className="text-sm text-gray-600">{t('stats.totalPointsEarned')}</p>
+              </div>
+
               {/* Average Points per Game */}
               <div className="bg-white rounded-xl shadow-md border border-gray-300 p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <ChartBarIcon className="h-8 w-8 text-blue-500" />
-                  <span className="text-2xl font-bold text-gray-900">{currentUserStats.averagePoints}</span>
+                  <ChartBarIcon className="h-8 w-8 text-green-500" />
+                  <span className="text-2xl font-bold text-gray-900">{currentUserStats.averagePoints.toFixed(3)}</span>
                 </div>
                 <h3 className="font-semibold text-gray-900">{t('stats.avgPointsGame')}</h3>
                 <p className="text-sm text-gray-600">{t('stats.basedOnGames', { count: currentUserStats.totalPredictions })}</p>
@@ -371,10 +376,7 @@ export default function Stats({ currentUser }: { currentUser: any }) {
               </h3>
               
               {performanceLoading ? (
-                <div className="text-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-                  <p className="text-sm text-gray-500 mt-2">Loading recent performance...</p>
-                </div>
+                <div className="animate-pulse h-32 bg-gray-200 rounded"></div>
               ) : lastGamesPerformance.length > 0 ? (
                 <div>
                   <div className="flex justify-between text-xs text-gray-500 mb-3">
@@ -434,15 +436,7 @@ export default function Stats({ currentUser }: { currentUser: any }) {
                   </div>
                 </div>
               ) : (
-                <div className="text-center py-8 text-gray-500">
-                  <div className="mb-4">
-                    <CalendarIcon className="h-12 w-12 text-gray-300 mx-auto" />
-                  </div>
-                  <p className="text-sm">{t('stats.noPerformanceData')}</p>
-                  <p className="text-xs text-gray-400 mt-1">
-                    {t('stats.performanceTrackingNotice')}
-                  </p>
-                </div>
+                <div className="text-center py-4 text-gray-500">{t('stats.noDataAvailable')}</div>
               )}
             </div>
           </div>
@@ -463,7 +457,7 @@ export default function Stats({ currentUser }: { currentUser: any }) {
                 {loading ? (
                   <div className="text-center py-4">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-                    <p className="text-sm text-gray-500 mt-2">Loading players...</p>
+                    <p className="text-sm text-gray-500 mt-2">{t('loading')}...</p>
                   </div>
                 ) : leaderboardData?.topPlayersByPoints ? (
                   leaderboardData.topPlayersByPoints.slice(0, 10).map((player, index) => (
@@ -491,7 +485,7 @@ export default function Stats({ currentUser }: { currentUser: any }) {
                     </div>
                   ))
                 ) : (
-                  <div className="text-center py-4 text-gray-500">No data available</div>
+                  <div className="text-center py-4 text-gray-500">{t('stats.noDataAvailable')}</div>
                 )}
               </div>
             </div>
@@ -503,7 +497,7 @@ export default function Stats({ currentUser }: { currentUser: any }) {
                 {loading ? (
                   <div className="text-center py-4">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto"></div>
-                    <p className="text-sm text-gray-500 mt-2">Loading averages...</p>
+                    <p className="text-sm text-gray-500 mt-2">{t('loading')}...</p>
                   </div>
                 ) : leaderboardData?.topPlayersByAverage ? (
                   leaderboardData.topPlayersByAverage.slice(0, 10).map((player, index) => (
@@ -527,11 +521,11 @@ export default function Stats({ currentUser }: { currentUser: any }) {
                           <p className="text-xs text-gray-500">{player.stats.totalPredictions} {t('stats.games')}</p>
                         </div>
                       </div>
-                      <span className="font-semibold text-gray-900">{player.averagePoints}</span>
+                      <span className="font-semibold text-gray-900">{player.averagePoints?.toFixed(3) || '0.000'}</span>
                     </div>
                   ))
                 ) : (
-                  <div className="text-center py-4 text-gray-500">No data available</div>
+                  <div className="text-center py-4 text-gray-500">{t('stats.noDataAvailable')}</div>
                 )}
               </div>
             </div>
@@ -546,7 +540,7 @@ export default function Stats({ currentUser }: { currentUser: any }) {
                 {loading ? (
                   <div className="text-center py-4">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto"></div>
-                    <p className="text-sm text-gray-500 mt-2">Loading streaks...</p>
+                    <p className="text-sm text-gray-500 mt-2">{t('loading')}...</p>
                   </div>
                 ) : pointsStreaks.length > 0 ? (
                   pointsStreaks.map((player, index) => (
@@ -580,7 +574,7 @@ export default function Stats({ currentUser }: { currentUser: any }) {
                     </div>
                   ))
                 ) : (
-                  <div className="text-center py-4 text-gray-500">No streaks recorded</div>
+                  <div className="text-center py-4 text-gray-500">{t('stats.noCompetitionWinners')}</div>
                 )}
               </div>
             </div>
@@ -595,7 +589,7 @@ export default function Stats({ currentUser }: { currentUser: any }) {
                 {loading ? (
                   <div className="text-center py-4">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto"></div>
-                    <p className="text-sm text-gray-500 mt-2">Loading exact score streaks...</p>
+                    <p className="text-sm text-gray-500 mt-2">{t('loading')}...</p>
                   </div>
                 ) : exactScoreStreaks.length > 0 ? (
                   exactScoreStreaks.map((player, index) => (
@@ -629,7 +623,7 @@ export default function Stats({ currentUser }: { currentUser: any }) {
                     </div>
                   ))
                 ) : (
-                  <div className="text-center py-4 text-gray-500">No exact score streaks recorded</div>
+                  <div className="text-center py-4 text-gray-500">{t('stats.noDataAvailable')}</div>
                 )}
               </div>
             </div>
@@ -640,41 +634,71 @@ export default function Stats({ currentUser }: { currentUser: any }) {
                 <TrophyIcon className="h-5 w-5 text-green-500 mr-2" />
                 {t('stats.mostCompetitionsWon')}
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {loading ? (
-                  <div className="col-span-2 text-center py-4">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto"></div>
-                    <p className="text-sm text-gray-500 mt-2">Loading competition winners...</p>
-                  </div>
-                ) : competitionsWonLeaderboard.length > 0 ? (
-                  competitionsWonLeaderboard.map((player, index) => (
-                    <div key={player.name} className="flex items-start justify-between p-4 bg-gray-50 rounded-lg">
-                      <div className="flex items-start space-x-3">
-                        <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-medium ${
-                          index === 0 ? 'bg-yellow-100 text-yellow-800' :
-                          index === 1 ? 'bg-gray-100 text-gray-800' :
-                          index === 2 ? 'bg-orange-100 text-orange-800' :
-                          'bg-blue-100 text-blue-800'
-                        }`}>
-                          {index + 1}
-                        </span>
-                        <img 
-                          src={getUserAvatar(player.name, index)} 
-                          alt={player.name}
-                          className="w-8 h-8 rounded-full"
-                        />
-                        <div>
-                          <span className="font-medium text-gray-900">{player.name}</span>
-                          <p className="text-xs text-gray-500 mt-1">{player.wonCompetitions}</p>
+              
+              {loading ? (
+                <div className="text-center py-4">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto"></div>
+                  <p className="text-sm text-gray-500 mt-2">{t('loading')}...</p>
+                </div>
+              ) : competitionsWonLeaderboard.length > 0 ? (
+                <div className="space-y-4">
+                  {/* Group players by win count */}
+                  {(() => {
+                    const groupedByWins = competitionsWonLeaderboard.reduce((acc, player) => {
+                      if (!acc[player.competitions]) {
+                        acc[player.competitions] = [];
+                      }
+                      acc[player.competitions].push(player);
+                      return acc;
+                    }, {} as Record<number, typeof competitionsWonLeaderboard>);
+                    
+                    // Sort by win count (descending)
+                    const sortedWinCounts = Object.keys(groupedByWins)
+                      .map(Number)
+                      .sort((a, b) => b - a);
+                    
+                    return sortedWinCounts.map((winCount, groupIndex) => (
+                      <div key={winCount} className="border-l-4 border-green-500 pl-4 py-3 bg-green-50 rounded-r-lg">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center space-x-2">
+                            <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold ${
+                              groupIndex === 0 ? 'bg-yellow-500 text-white' :
+                              groupIndex === 1 ? 'bg-gray-400 text-white' :
+                              groupIndex === 2 ? 'bg-orange-500 text-white' :
+                              'bg-blue-500 text-white'
+                            }`}>
+                              {groupIndex + 1}
+                            </span>
+                            <span className="text-lg font-bold text-gray-900">
+                              {winCount} {winCount === 1 ? t('stats.win') : t('stats.wins')}
+                            </span>
+                          </div>
+                        </div>
+                        
+                        <div className="flex flex-wrap gap-3">
+                          {groupedByWins[winCount].map((player) => (
+                            <div key={player.name} className="flex items-center space-x-2 bg-white rounded-lg p-3 shadow-sm border border-gray-200">
+                              <img 
+                                src={getUserAvatar(player.name, 0)} 
+                                alt={player.name}
+                                className="w-8 h-8 rounded-full border-2 border-green-300"
+                              />
+                              <div>
+                                <div className="font-medium text-gray-900 text-sm">{player.name}</div>
+                                <div className="text-xs text-gray-500 max-w-48 truncate" title={player.wonCompetitions}>
+                                  {player.wonCompetitions}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
                         </div>
                       </div>
-                      <span className="font-semibold text-gray-900">{player.competitions}</span>
-                    </div>
-                  ))
-                ) : (
-                  <div className="col-span-2 text-center py-4 text-gray-500">No competition winners yet</div>
-                )}
-              </div>
+                    ));
+                  })()}
+                </div>
+              ) : (
+                <div className="text-center py-4 text-gray-500">{t('stats.noCompetitionWinners')}</div>
+              )}
             </div>
           </div>
         </div>
@@ -690,9 +714,9 @@ export default function Stats({ currentUser }: { currentUser: any }) {
             <div className="px-6 py-4 bg-gradient-to-r from-yellow-50 to-orange-50 border-b border-gray-200">
               <h3 className="text-lg font-semibold text-gray-900 flex items-center">
                 <CalendarIcon className="h-5 w-5 text-yellow-600 mr-2" />
-                Competition History & Champions
+                {t('stats.competitionHistoryChampions')}
               </h3>
-              <p className="text-sm text-gray-600 mt-1">Complete record of all competitions and their winners</p>
+              <p className="text-sm text-gray-600 mt-1">{t('stats.completeRecordCompetitions')}</p>
             </div>
             
             <div className="overflow-x-auto">
@@ -712,6 +736,9 @@ export default function Stats({ currentUser }: { currentUser: any }) {
                       {t('stats.points')}
                     </th>
                     <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      {t('stats.avgPointsGame')}
+                    </th>
+                    <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                       {t('stats.participants')}
                     </th>
                   </tr>
@@ -719,102 +746,118 @@ export default function Stats({ currentUser }: { currentUser: any }) {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {loading ? (
                     <tr>
-                      <td colSpan={5} className="px-6 py-8 text-center">
+                      <td colSpan={6} className="px-6 py-8 text-center">
                         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-600 mx-auto"></div>
-                        <p className="text-sm text-gray-500 mt-2">Loading competition history...</p>
+                        <p className="text-sm text-gray-500 mt-2">{t('loading')}...</p>
                       </td>
                     </tr>
                   ) : leaderboardData?.competitions && leaderboardData.competitions.length > 0 ? (
-                    leaderboardData.competitions.map((competition, index) => {
-                      return (
-                        <tr key={competition.id} className="hover:bg-yellow-50 transition-colors">
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="flex items-center">
-                              <div className="flex-shrink-0 h-10 w-10">
-                                {competition.logo ? (
-                                  <img 
-                                    src={competition.logo} 
-                                    alt={`${competition.name} logo`}
-                                    className="h-10 w-10 object-contain"
-                                  />
-                                ) : (
-                                  <div className="h-10 w-10 rounded-full bg-gradient-to-r from-gray-500 to-gray-600 flex items-center justify-center">
-                                    <span className="text-white font-bold text-sm">
-                                      {competition.name.substring(0, 2).toUpperCase()}
-                                    </span>
-                                  </div>
-                                )}
-                              </div>
-                              <div className="ml-4">
-                                <div className="text-sm font-medium text-gray-900">{competition.name}</div>
-                                <div className="text-sm text-gray-500">
-                                  {competition.name.includes('Euro') ? 'European Championship' : 
-                                   competition.name.includes('World Cup') ? 'FIFA World Cup' : 
-                                   competition.name.includes('Champions League') ? 'UEFA Champions League' :
-                                   'Football Competition'}
-                                </div>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-900">
-                              {new Date(competition.startDate).toLocaleDateString('en-US', { 
-                                month: 'short', 
-                                day: 'numeric', 
-                                year: 'numeric' 
-                              })} - {new Date(competition.endDate).toLocaleDateString('en-US', { 
-                                month: 'short', 
-                                day: 'numeric', 
-                                year: 'numeric' 
-                              })}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              {Math.ceil((new Date(competition.endDate).getTime() - new Date(competition.startDate).getTime()) / (1000 * 60 * 60 * 24))} days
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            {competition.winner ? (
+                    leaderboardData.competitions
+                      .filter(competition => competition.status === 'FINISHED')
+                      .map((competition, index) => {
+                        return (
+                          <tr 
+                            key={competition.id} 
+                            className="hover:bg-yellow-50 transition-colors cursor-pointer"
+                            onClick={() => router.push(`/competitions/${competition.id}`)}
+                          >
+                            <td className="px-6 py-4 whitespace-nowrap">
                               <div className="flex items-center">
-                                <img 
-                                  src={getUserAvatar(competition.winner.name, index)} 
-                                  alt={competition.winner.name}
-                                  className="w-8 h-8 rounded-full mr-3 border-2 border-yellow-400"
-                                />
-                                <div>
-                                  <div className="text-sm font-medium text-gray-900 flex items-center">
-                                    {competition.winner.name}
-                                    <TrophyIcon className="h-4 w-4 text-yellow-500 ml-2" />
+                                <div className="flex-shrink-0 h-10 w-10">
+                                  {competition.logo ? (
+                                    <img 
+                                      src={competition.logo} 
+                                      alt={`${competition.name} logo`}
+                                      className="h-10 w-10 object-contain"
+                                    />
+                                  ) : (
+                                    <div className="h-10 w-10 rounded-full bg-gradient-to-r from-gray-500 to-gray-600 flex items-center justify-center">
+                                      <span className="text-white font-bold text-sm">
+                                        {competition.name.substring(0, 2).toUpperCase()}
+                                      </span>
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="ml-4">
+                                  <Link 
+                                    href={`/competitions/${competition.id}`}
+                                    className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline transition-colors cursor-pointer"
+                                  >
+                                    {competition.name}
+                                  </Link>
+                                  <div className="text-sm text-gray-500">
+                                    {competition.name.includes('Euro') ? t('stats.europeanChampionship') : 
+                                     competition.name.includes('World Cup') ? t('stats.fifaWorldCup') : 
+                                     competition.name.includes('Champions League') ? t('stats.uefaChampionsLeague') :
+                                     t('stats.footballCompetition')}
                                   </div>
-                                  <div className="text-sm text-gray-500">Champion</div>
                                 </div>
                               </div>
-                            ) : (
-                              <div className="text-sm text-gray-500">No winner set</div>
-                            )}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-center">
-                            {competition.winner ? (
-                              <>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm text-gray-900">
+                                {new Date(competition.startDate).toLocaleDateString('en-US', { 
+                                  month: 'short', 
+                                  day: 'numeric', 
+                                  year: 'numeric' 
+                                })} - {new Date(competition.endDate).toLocaleDateString('en-US', { 
+                                  month: 'short', 
+                                  day: 'numeric', 
+                                  year: 'numeric' 
+                                })}
+                              </div>
+                              <div className="text-sm text-gray-500">
+                                {Math.ceil((new Date(competition.endDate).getTime() - new Date(competition.startDate).getTime()) / (1000 * 60 * 60 * 24))} {t('stats.days')}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              {competition.winner ? (
+                                <div className="flex items-center">
+                                  <img 
+                                    src={getUserAvatar(competition.winner.name, index)} 
+                                    alt={competition.winner.name}
+                                    className="w-8 h-8 rounded-full mr-3 border-2 border-yellow-400"
+                                  />
+                                  <div>
+                                    <div className="text-sm font-medium text-gray-900 flex items-center">
+                                      {competition.winner.name}
+                                      <TrophyIcon className="h-4 w-4 text-yellow-500 ml-2" />
+                                    </div>
+                                    <div className="text-sm text-gray-500">{t('stats.champion')}</div>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="text-sm text-gray-500">{t('stats.noWinnerSet')}</div>
+                              )}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-center">
+                              {competition.winner ? (
                                 <div className="text-lg font-bold text-yellow-600">
                                   {competition.winnerPoints}
                                 </div>
-                                <div className="text-sm text-gray-500">points</div>
-                              </>
-                            ) : (
-                              <div className="text-sm text-gray-500">-</div>
-                            )}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-center">
-                            <div className="text-sm font-medium text-gray-900">{competition.participantCount}</div>
-                            <div className="text-sm text-gray-500">players</div>
-                          </td>
-                        </tr>
-                      );
-                    })
+                              ) : (
+                                <div className="text-sm text-gray-500">-</div>
+                              )}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-center">
+                              {competition.winner && competition.gameCount > 0 ? (
+                                <div className="text-sm font-medium text-gray-900">
+                                  {(competition.winnerPoints / competition.gameCount).toFixed(2)}
+                                </div>
+                              ) : (
+                                <div className="text-sm text-gray-500">-</div>
+                              )}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-center">
+                              <div className="text-sm font-medium text-gray-900">{competition.participantCount}</div>
+                            </td>
+                          </tr>
+                        );
+                      })
                   ) : (
                     <tr>
-                      <td colSpan={5} className="px-6 py-8 text-center text-gray-500">
-                        No competition history available
+                      <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
+                        {t('stats.noCompetitionHistory')}
                       </td>
                     </tr>
                   )}
@@ -825,30 +868,24 @@ export default function Stats({ currentUser }: { currentUser: any }) {
             {/* Competition Summary Stats */}
             {!loading && leaderboardData && (
               <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
                   <div>
-                    <div className="text-2xl font-bold text-blue-600">{leaderboardData.competitions?.length || 0}</div>
-                    <div className="text-sm text-gray-600">Total Competitions</div>
+                    <div className="text-2xl font-bold text-blue-600">
+                      {leaderboardData.competitions?.filter(comp => comp.status === 'FINISHED').length || 0}
+                    </div>
+                    <div className="text-sm text-gray-600">{t('stats.completedCompetitions')}</div>
                   </div>
                   <div>
                     <div className="text-2xl font-bold text-green-600">
                       {leaderboardData.topPlayersByPoints.reduce((sum, player) => sum + player.stats.totalPoints, 0)}
                     </div>
-                    <div className="text-sm text-gray-600">Total Points Scored</div>
+                    <div className="text-sm text-gray-600">{t('stats.totalPointsScored')}</div>
                   </div>
                   <div>
                     <div className="text-2xl font-bold text-purple-600">
                       {leaderboardData.topPlayersByPoints.reduce((sum, player) => sum + player.stats.totalPredictions, 0)}
                     </div>
-                    <div className="text-sm text-gray-600">Total Predictions</div>
-                  </div>
-                  <div>
-                    <div className="text-2xl font-bold text-yellow-600">
-                      {leaderboardData.topPlayersByPoints.length > 0 ? 
-                        (leaderboardData.topPlayersByPoints.reduce((sum, player) => sum + player.stats.accuracy, 0) / leaderboardData.topPlayersByPoints.length).toFixed(1) : 0
-                      }%
-                    </div>
-                    <div className="text-sm text-gray-600">Average Accuracy</div>
+                    <div className="text-sm text-gray-600">{t('stats.totalPredictions')}</div>
                   </div>
                 </div>
               </div>

@@ -61,9 +61,27 @@ export default function CompetitionDetail() {
     startDate: '',
     endDate: '',
     logo: '',
+    status: '',
   });
   const [isUpdatingCompetition, setIsUpdatingCompetition] = useState(false);
   const [competitionError, setCompetitionError] = useState<string | null>(null);
+
+  // Game deletion state
+  const [showDeleteGameModal, setShowDeleteGameModal] = useState(false);
+  const [gameToDeleteId, setGameToDeleteId] = useState<string | null>(null);
+  const [deleteGameConfirmationText, setDeleteGameConfirmationText] = useState('');
+  const [deletingGame, setDeletingGame] = useState(false);
+
+  // Pagination state for games
+  const [currentPage, setCurrentPage] = useState(1);
+  const gamesPerPage = 50;
+
+  // Search and filter state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('ALL');
+
+  // Sorting state
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | null>('asc'); // Default to ascending (oldest first)
 
   const fetchCompetitionDetails = useCallback(async () => {
     if (!competitionId || status !== 'authenticated') return;
@@ -211,20 +229,36 @@ export default function CompetitionDetail() {
     }
   };
 
-  const handleDeleteGame = async (gameId: string) => {
-    if (!window.confirm('Are you sure you want to delete this game?')) return;
-    setIsSubmitting(true);
+  const openDeleteGameModal = (gameId: string) => {
+    setGameToDeleteId(gameId);
+    setShowDeleteGameModal(true);
+    setDeleteGameConfirmationText('');
+    setDeletingGame(false);
+  };
+
+  const closeDeleteGameModal = () => {
+    setGameToDeleteId(null);
+    setShowDeleteGameModal(false);
+    setDeleteGameConfirmationText('');
+    setDeletingGame(false);
+  };
+
+  const handleDeleteGame = async () => {
+    if (!gameToDeleteId || deleteGameConfirmationText.toUpperCase() !== 'DELETE') return;
+
+    setDeletingGame(true);
     try {
-      const response = await fetch(`/api/admin/games/${gameId}`, { method: 'DELETE' });
+      const response = await fetch(`/api/admin/games/${gameToDeleteId}`, { method: 'DELETE' });
       if (!response.ok) {
         const data = await response.json();
         throw new Error(data.error || 'Failed to delete game');
       }
       fetchCompetitionDetails();
+      closeDeleteGameModal();
     } catch (error) {
       setFormError(error instanceof Error ? error.message : 'Failed to delete game');
     } finally {
-      setIsSubmitting(false);
+      setDeletingGame(false);
     }
   };
 
@@ -238,12 +272,13 @@ export default function CompetitionDetail() {
       startDate: competition.startDate.slice(0, 10), // Convert to YYYY-MM-DD format
       endDate: competition.endDate.slice(0, 10),
       logo: competition.logo || '',
+      status: competition.status,
     });
     setShowEditCompetitionModal(true);
     setCompetitionError(null);
   };
 
-  const handleCompetitionInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleCompetitionInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setEditCompetitionData(prev => ({ ...prev, [name]: value }));
   };
@@ -278,6 +313,92 @@ export default function CompetitionDetail() {
     } finally {
       setIsUpdatingCompetition(false);
     }
+  };
+
+  // Filter and search logic
+  const filteredGames = competition?.games.filter(game => {
+    const matchesSearch = searchQuery === '' || 
+      game.homeTeam?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      game.awayTeam?.name.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesStatus = statusFilter === 'ALL' || game.status === statusFilter;
+    
+    return matchesSearch && matchesStatus;
+  }) || [];
+
+  // Reset to page 1 when filters change
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
+    setCurrentPage(1);
+  };
+
+  const handleStatusFilterChange = (value: string) => {
+    setStatusFilter(value);
+    setCurrentPage(1);
+  };
+
+  // Handle date column sorting
+  const handleDateSort = () => {
+    // Clear filters when sorting by date to show full range
+    setSearchQuery('');
+    setStatusFilter('ALL');
+    
+    if (sortOrder === 'asc') {
+      setSortOrder('desc');
+    } else if (sortOrder === 'desc') {
+      setSortOrder(null);
+    } else {
+      setSortOrder('asc');
+    }
+    setCurrentPage(1); // Reset to first page when sorting changes
+  };
+
+  // Apply sorting to filtered games
+  const sortedGames = [...filteredGames].sort((a, b) => {
+    const dateA = new Date(a.date).getTime();
+    const dateB = new Date(b.date).getTime();
+    
+    if (sortOrder === 'asc') {
+      return dateA - dateB; // Oldest first
+    } else if (sortOrder === 'desc') {
+      return dateB - dateA; // Newest first
+    } else {
+      // No specific sorting, maintain original order or some default
+      return dateA - dateB; // Default to ascending
+    }
+  });
+
+  // Debug: Log date range when sorting changes
+  useEffect(() => {
+    if (sortedGames.length > 0) {
+      const dates = sortedGames.map(game => new Date(game.date));
+      const minDate = new Date(Math.min(...dates.map(d => d.getTime())));
+      const maxDate = new Date(Math.max(...dates.map(d => d.getTime())));
+      console.log(`Date range: ${minDate.toISOString().split('T')[0]} to ${maxDate.toISOString().split('T')[0]} (${sortedGames.length} games)`);
+    }
+  }, [sortedGames.length, sortOrder]);
+
+  // Update pagination to use sorted games
+  const paginatedGames = sortedGames.slice((currentPage - 1) * gamesPerPage, currentPage * gamesPerPage);
+
+  // Calculate total pages
+  const totalPages = Math.ceil(sortedGames.length / gamesPerPage);
+
+  // Format date helper
+  const formatGameDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return {
+      date: date.toLocaleDateString('en-US', { 
+        weekday: 'short', 
+        month: 'short', 
+        day: 'numeric' 
+      }),
+      time: date.toLocaleTimeString('en-US', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: false 
+      })
+    };
   };
 
   if (status === 'loading' || loading) {
@@ -333,13 +454,13 @@ export default function CompetitionDetail() {
                 className="h-12 w-12 object-contain"
               />
             )}
-            <div>
+                    <div>
               <h2 className="text-2xl font-bold text-gray-100 md:text-gray-900" style={{color: 'var(--competition-title-color, #fff)'}}>{competition.name}</h2>
               {competition.description && (
                 <p className="text-gray-600 mt-1">{competition.description}</p>
               )}
-            </div>
-          </div>
+                    </div>
+                  </div>
           <button
             className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 flex items-center space-x-2"
             onClick={handleEditCompetition}
@@ -350,7 +471,7 @@ export default function CompetitionDetail() {
             <span>Edit Competition</span>
           </button>
         </div>
-        
+
         <div className="bg-gray-50 rounded-lg p-4 mb-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
             <div>
@@ -381,71 +502,280 @@ export default function CompetitionDetail() {
       >
         Add Game
       </button>
-      {competition.games.length === 0 && (
-        <div className="p-4 text-center text-gray-500">
-          No games yet for this competition.
-        </div>
-      )}
-      {competition.games.length > 0 && (
-        <div className="overflow-x-auto">
-          <table className="min-w-full bg-white rounded shadow">
-            <thead>
-              <tr className="bg-gray-100 dark:bg-gray-900">
-                <th className="px-4 py-2 text-left text-gray-900 dark:text-gray-100">Date & Time</th>
-                <th className="px-4 py-2 text-left text-gray-900 dark:text-gray-100">Match</th>
-                <th className="px-4 py-2 text-left text-gray-900 dark:text-gray-100">Status</th>
-                <th className="px-4 py-2 text-left text-gray-900 dark:text-gray-100">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {competition.games
-                .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-                .map(game => (
-                  <tr key={game.id}>
-                    <td className="border px-4 py-2 text-gray-800">{new Date(game.date).toLocaleString()}</td>
-                    <td className="border px-4 py-2 text-gray-800">
-                      {game.homeTeam?.logo && (
-                        <img src={game.homeTeam.logo} alt={game.homeTeam.name + ' logo'} width="24" height="24" className="inline-block mr-2 align-middle object-cover" />
-                      )}
-                      {game.homeTeam?.name}
-                      <span className="mx-2 font-semibold">{typeof game.homeScore === 'number' ? game.homeScore : '-'}</span>
-                      <span className="font-semibold">-</span>
-                      <span className="mx-2 font-semibold">{typeof game.awayScore === 'number' ? game.awayScore : '-'}</span>
-                      {game.awayTeam?.logo && (
-                        <img src={game.awayTeam.logo} alt={game.awayTeam.name + ' logo'} width="24" height="24" className="inline-block ml-2 align-middle object-cover" />
-                      )}
-                      {game.awayTeam?.name}
-                    </td>
-                    <td className="border px-4 py-2 text-gray-800">{game.status}</td>
-                    <td className="border px-4 py-2">
-                      <button
-                        className="mr-2 px-2 py-1 bg-yellow-400 text-white rounded"
-                        onClick={() => handleEditGame(game)}
+      
+      {/* Games Management Section */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+        {competition.games.length === 0 ? (
+          <div className="p-8 text-center text-gray-500">
+            <svg className="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No games yet</h3>
+            <p className="text-gray-500">Start by adding your first game to this competition.</p>
+          </div>
+        ) : (
+          <>
+            {/* Header with filters and search */}
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900">Games Management</h3>
+                  <p className="text-sm text-gray-500">
+                    {filteredGames.length} of {competition.games.length} games
+                    {sortOrder && (
+                      <span className="ml-2 text-blue-600">
+                        (sorted by date {sortOrder === 'asc' ? '↑' : '↓'})
+                      </span>
+                    )}
+                  </p>
+                </div>
+                
+                <div className="flex flex-col sm:flex-row gap-3">
+                  {/* Search */}
+                  <div className="relative">
+                    <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    <input
+                      type="text"
+                      placeholder="Search teams..."
+                      className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      value={searchQuery}
+                      onChange={(e) => handleSearchChange(e.target.value)}
+                    />
+                  </div>
+                  
+                  {/* Status Filter */}
+                  <select
+                    className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    value={statusFilter}
+                    onChange={(e) => handleStatusFilterChange(e.target.value)}
+                  >
+                    <option value="ALL">All Status</option>
+                    <option value="PENDING">Pending</option>
+                    <option value="FINISHED">Finished</option>
+                    <option value="ACTIVE">Active</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            
+            {/* Games Table */}
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <button 
+                        onClick={handleDateSort}
+                        className="flex items-center space-x-1 hover:text-gray-700 transition-colors focus:outline-none"
                       >
-                        Edit
+                        <span>Date & Time</span>
+                        <div className="flex flex-col">
+                          <svg 
+                            className={`h-3 w-3 ${sortOrder === 'asc' ? 'text-blue-600' : 'text-gray-300'}`} 
+                            fill="currentColor" 
+                            viewBox="0 0 12 12"
+                          >
+                            <path d="M6 0L0 6h12L6 0z"/>
+                          </svg>
+                          <svg 
+                            className={`h-3 w-3 ${sortOrder === 'desc' ? 'text-blue-600' : 'text-gray-300'}`} 
+                            fill="currentColor" 
+                            viewBox="0 0 12 12"
+                          >
+                            <path d="M6 12L0 6h12L6 12z"/>
+                          </svg>
+                        </div>
                       </button>
-          <button
-                        className="px-2 py-1 bg-red-600 text-white rounded"
-                        onClick={() => handleDeleteGame(game.id)}
-                      >
-                        Delete
-          </button>
-                    </td>
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Match
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
                   </tr>
-                ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {paginatedGames.map((game, index) => {
+                    const { date, time } = formatGameDate(game.date);
+                    return (
+                      <tr key={game.id} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900 font-medium">{date}</div>
+                          <div className="text-sm text-gray-500">{time}</div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center justify-between max-w-sm">
+                            {/* Home Team */}
+                            <div className="flex items-center flex-1">
+                              {game.homeTeam?.logo && (
+                                <img 
+                                  src={game.homeTeam.logo} 
+                                  alt={`${game.homeTeam.name} logo`} 
+                                  className="h-6 w-6 rounded-full object-cover mr-2" 
+                                />
+                              )}
+                              <span className="text-sm font-medium text-gray-900 truncate">
+                                {game.homeTeam?.name}
+                              </span>
+                            </div>
+                            
+                            {/* Score */}
+                            <div className="flex items-center px-3">
+                              <span className="text-lg font-bold text-gray-700">
+                                {typeof game.homeScore === 'number' ? game.homeScore : '-'}
+                              </span>
+                              <span className="mx-2 text-gray-400">:</span>
+                              <span className="text-lg font-bold text-gray-700">
+                                {typeof game.awayScore === 'number' ? game.awayScore : '-'}
+                              </span>
+                            </div>
+                            
+                            {/* Away Team */}
+                            <div className="flex items-center flex-1 justify-end">
+                              <span className="text-sm font-medium text-gray-900 truncate mr-2">
+                                {game.awayTeam?.name}
+                              </span>
+                              {game.awayTeam?.logo && (
+                                <img 
+                                  src={game.awayTeam.logo} 
+                                  alt={`${game.awayTeam.name} logo`} 
+                                  className="h-6 w-6 rounded-full object-cover" 
+                                />
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            game.status === 'FINISHED' ? 'bg-green-100 text-green-800' :
+                            game.status === 'ACTIVE' ? 'bg-blue-100 text-blue-800' :
+                            'bg-yellow-100 text-yellow-800'
+                          }`}>
+                            {game.status}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <div className="flex space-x-2">
+                            <button
+                              className="inline-flex items-center px-3 py-1 bg-yellow-100 text-yellow-800 rounded-md hover:bg-yellow-200 transition-colors"
+                              onClick={() => handleEditGame(game)}
+                            >
+                              <svg className="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                              </svg>
+                              Edit
+                            </button>
+                            <button
+                              className="inline-flex items-center px-3 py-1 bg-purple-100 text-purple-800 rounded-md hover:bg-purple-200 transition-colors"
+                              onClick={() => router.push(`/admin/games/${game.id}/bets`)}
+                            >
+                              <svg className="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                              </svg>
+                              Overwrite Bets
+                            </button>
+                            <button
+                              className="inline-flex items-center px-3 py-1 bg-red-100 text-red-800 rounded-md hover:bg-red-200 transition-colors"
+                              onClick={() => openDeleteGameModal(game.id)}
+                            >
+                              <svg className="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                              Delete
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+            
+            {/* Enhanced Pagination */}
+            {totalPages > 1 && (
+              <div className="px-6 py-4 border-t border-gray-200 bg-white">
+                <div className="flex items-center justify-between">
+                  <div className="text-sm text-gray-700">
+                    Showing <span className="font-medium">{Math.min((currentPage - 1) * gamesPerPage + 1, filteredGames.length)}</span> to{' '}
+                    <span className="font-medium">{Math.min(currentPage * gamesPerPage, filteredGames.length)}</span> of{' '}
+                    <span className="font-medium">{filteredGames.length}</span> games
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                      disabled={currentPage === 1}
+                      className="relative inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <svg className="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      </svg>
+                      Previous
+                    </button>
+                    
+                    {/* Page numbers */}
+                    <div className="flex space-x-1">
+                      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                        let pageNum;
+                        if (totalPages <= 5) {
+                          pageNum = i + 1;
+                        } else if (currentPage <= 3) {
+                          pageNum = i + 1;
+                        } else if (currentPage >= totalPages - 2) {
+                          pageNum = totalPages - 4 + i;
+                        } else {
+                          pageNum = currentPage - 2 + i;
+                        }
+                        
+                        return (
+                          <button
+                            key={pageNum}
+                            onClick={() => setCurrentPage(pageNum)}
+                            className={`relative inline-flex items-center px-3 py-2 text-sm font-medium rounded-md ${
+                              currentPage === pageNum
+                                ? 'bg-blue-600 text-white border-blue-600'
+                                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                            } border`}
+                          >
+                            {pageNum}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    
+                    <button
+                      onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                      disabled={currentPage === totalPages}
+                      className="relative inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Next
+                      <svg className="h-4 w-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </div>
         {showNewGameModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
           <div className="bg-white p-6 rounded shadow-lg w-full max-w-md">
             <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">Add Game</h2>
             {formError && <div className="text-red-500 mb-2">{formError}</div>}
             <div className="mb-4">
-              <label className="block mb-1">Home Team</label>
+              <label className="block mb-1 text-gray-700 font-medium">Home Team</label>
                             <select
-                className="w-full border rounded px-2 py-1"
+                className="w-full border rounded px-2 py-1 text-gray-800"
                               value={newGame.homeTeamId}
                 onChange={e => setNewGame({ ...newGame, homeTeamId: e.target.value })}
                             >
@@ -456,9 +786,9 @@ export default function CompetitionDetail() {
                             </select>
                           </div>
             <div className="mb-4">
-              <label className="block mb-1">Away Team</label>
+              <label className="block mb-1 text-gray-700 font-medium">Away Team</label>
                             <select
-                className="w-full border rounded px-2 py-1"
+                className="w-full border rounded px-2 py-1 text-gray-800"
                               value={newGame.awayTeamId}
                 onChange={e => setNewGame({ ...newGame, awayTeamId: e.target.value })}
                             >
@@ -469,10 +799,10 @@ export default function CompetitionDetail() {
                             </select>
                           </div>
             <div className="mb-4">
-              <label className="block mb-1">Date & Time</label>
+              <label className="block mb-1 text-gray-700 font-medium">Date & Time</label>
                             <input
                               type="datetime-local"
-                className="w-full border rounded px-2 py-1"
+                className="w-full border rounded px-2 py-1 text-gray-800"
                               value={newGame.date}
                 onChange={e => setNewGame({ ...newGame, date: e.target.value })}
                             />
@@ -489,7 +819,7 @@ export default function CompetitionDetail() {
                 onClick={handleCreateGame}
                 disabled={isSubmitting}
               >
-                {isSubmitting ? "Creating..." : "Create"}
+                {isSubmitting ? t('creating') : t('create')}
               </button>
                         </div>
                       </div>
@@ -498,42 +828,42 @@ export default function CompetitionDetail() {
       {showNewTeamModal && (
         <div style={{ position: 'fixed', top: 100, left: 100, background: 'white', zIndex: 9999, padding: 20 }}>
           Modal Open
-          <button onClick={() => setShowNewTeamModal(false)}>Close</button>
+          <button onClick={() => setShowNewTeamModal(false)}>{t('cancel')}</button>
         </div>
       )}
       {showEditGameModal && editGame && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
           <div className="bg-white p-6 rounded shadow-lg w-full max-w-md">
-            <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">Edit Game</h2>
+            <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">{t('admin.games.edit')}</h2>
             {formError && <div className="text-red-500 mb-2">{formError}</div>}
             <div className="mb-4">
-              <label className="block mb-1">Home Team</label>
+              <label className="block mb-1 text-gray-700 font-medium">{t('admin.games.homeTeam')}</label>
               <select
                 className="w-full border rounded px-2 py-1 text-gray-800"
                 value={editGame.homeTeam?.id || ''}
                 onChange={e => setEditGame({ ...editGame, homeTeam: { ...editGame.homeTeam, id: e.target.value } })}
               >
-                <option value="">Select team</option>
+                <option value="">{t('admin.games.selectTeam')}</option>
                 {teams.map(team => (
                   <option key={team.id} value={team.id}>{team.name}</option>
                 ))}
               </select>
             </div>
             <div className="mb-4">
-              <label className="block mb-1">Away Team</label>
+              <label className="block mb-1 text-gray-700 font-medium">{t('admin.games.awayTeam')}</label>
               <select
                 className="w-full border rounded px-2 py-1 text-gray-800"
                 value={editGame.awayTeam?.id || ''}
                 onChange={e => setEditGame({ ...editGame, awayTeam: { ...editGame.awayTeam, id: e.target.value } })}
               >
-                <option value="">Select team</option>
+                <option value="">{t('admin.games.selectTeam')}</option>
                 {teams.map(team => (
                   <option key={team.id} value={team.id}>{team.name}</option>
                 ))}
               </select>
             </div>
             <div className="mb-4">
-              <label className="block mb-1">Date & Time</label>
+              <label className="block mb-1 text-gray-700 font-medium">{t('admin.games.dateTime')}</label>
               <input
                 type="datetime-local"
                 className="w-full border rounded px-2 py-1 text-gray-800"
@@ -543,7 +873,7 @@ export default function CompetitionDetail() {
             </div>
             <div className="mb-4 flex gap-4">
               <div className="flex-1">
-                <label className="block mb-1">Home Score</label>
+                <label className="block mb-1 text-gray-700 font-medium">{t('admin.games.homeScore')}</label>
                 <input
                   type="number"
                   className="w-full border rounded px-2 py-1 text-gray-800"
@@ -553,7 +883,7 @@ export default function CompetitionDetail() {
                 />
               </div>
               <div className="flex-1">
-                <label className="block mb-1">Away Score</label>
+                <label className="block mb-1 text-gray-700 font-medium">{t('admin.games.awayScore')}</label>
                 <input
                   type="number"
                   className="w-full border rounded px-2 py-1 text-gray-800"
@@ -568,14 +898,14 @@ export default function CompetitionDetail() {
                 className="px-4 py-2 bg-gray-300 rounded"
                 onClick={() => setShowEditGameModal(false)}
                   >
-                Cancel
+                {t('cancel')}
                   </button>
                   <button
                 className="px-4 py-2 bg-blue-600 text-white rounded"
                 onClick={handleUpdateGame}
                     disabled={isSubmitting}
                   >
-                {isSubmitting ? "Saving..." : "Save"}
+                {isSubmitting ? t('saving') : t('save')}
                   </button>
               </div>
             </div>
@@ -584,42 +914,24 @@ export default function CompetitionDetail() {
         
         {/* Edit Competition Modal */}
         {showEditCompetitionModal && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-30 z-50">
-            <div className="bg-white p-6 rounded shadow-lg w-full max-w-lg">
-              <h2 className="text-lg font-semibold mb-4 text-gray-900">Edit Competition</h2>
-              {competitionError && <div className="text-red-500 mb-4">{competitionError}</div>}
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+              <h3 className="text-lg font-semibold mb-4">{t('admin.editCompetition')}</h3>
               
-              <form onSubmit={handleUpdateCompetition} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Competition Name *</label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={editCompetitionData.name}
-                    onChange={handleCompetitionInputChange}
-                    className="w-full border border-gray-300 rounded px-3 py-2 text-gray-800"
-                    required
-                  />
+              {competitionError && (
+                <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+                  {competitionError}
                 </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                  <textarea
-                    name="description"
-                    value={editCompetitionData.description}
-                    onChange={handleCompetitionInputChange}
-                    rows={3}
-                    className="w-full border border-gray-300 rounded px-3 py-2 text-gray-800"
-                  />
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4">
+              )}
+              
+              <form onSubmit={handleUpdateCompetition}>
+                <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Start Date *</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t('admin.competitionName')} *</label>
                     <input
-                      type="date"
-                      name="startDate"
-                      value={editCompetitionData.startDate}
+                      type="text"
+                      name="name"
+                      value={editCompetitionData.name}
                       onChange={handleCompetitionInputChange}
                       className="w-full border border-gray-300 rounded px-3 py-2 text-gray-800"
                       required
@@ -627,61 +939,127 @@ export default function CompetitionDetail() {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">End Date *</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t('admin.description')}</label>
+                    <textarea
+                      name="description"
+                      value={editCompetitionData.description}
+                      onChange={handleCompetitionInputChange}
+                      className="w-full border border-gray-300 rounded px-3 py-2 text-gray-800"
+                      rows={3}
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('admin.startDate')} *</label>
+                      <input
+                        type="date"
+                        name="startDate"
+                        value={editCompetitionData.startDate}
+                        onChange={handleCompetitionInputChange}
+                        className="w-full border border-gray-300 rounded px-3 py-2 text-gray-800"
+                        required
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">{t('admin.endDate')} *</label>
+                      <input
+                        type="date"
+                        name="endDate"
+                        value={editCompetitionData.endDate}
+                        onChange={handleCompetitionInputChange}
+                        className="w-full border border-gray-300 rounded px-3 py-2 text-gray-800"
+                        required
+                      />
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t('admin.logoUrl')}</label>
                     <input
-                      type="date"
-                      name="endDate"
-                      value={editCompetitionData.endDate}
+                      type="url"
+                      name="logo"
+                      value={editCompetitionData.logo}
+                      onChange={handleCompetitionInputChange}
+                      className="w-full border border-gray-300 rounded px-3 py-2 text-gray-800"
+                      placeholder="https://example.com/logo.png"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t('admin.status')} *</label>
+                    <select
+                      name="status"
+                      value={editCompetitionData.status}
                       onChange={handleCompetitionInputChange}
                       className="w-full border border-gray-300 rounded px-3 py-2 text-gray-800"
                       required
-                    />
+                    >
+                      <option value="ACTIVE">{t('admin.active')}</option>
+                      <option value="FINISHED">{t('admin.finished')}</option>
+                      <option value="CANCELLED">{t('admin.cancelled')}</option>
+                    </select>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {t('admin.statusHelp')}
+                    </p>
                   </div>
                 </div>
                 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Logo URL</label>
-                  <input
-                    type="url"
-                    name="logo"
-                    value={editCompetitionData.logo}
-                    onChange={handleCompetitionInputChange}
-                    placeholder="https://example.com/logo.svg"
-                    className="w-full border border-gray-300 rounded px-3 py-2 text-gray-800"
-                  />
-                  {editCompetitionData.logo && (
-                    <div className="mt-2">
-                      <p className="text-sm text-gray-600 mb-1">Preview:</p>
-                      <img 
-                        src={editCompetitionData.logo} 
-                        alt="Logo preview"
-                        className="h-12 w-12 object-contain border border-gray-200 rounded"
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                        }}
-                      />
-                    </div>
-                  )}
-                </div>
-                
-                <div className="flex justify-end gap-2 pt-4">
+                <div className="flex space-x-3 mt-6">
                   <button
                     type="button"
-                    className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
                     onClick={() => setShowEditCompetitionModal(false)}
-                    disabled={isUpdatingCompetition}
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded text-gray-700 hover:bg-gray-50"
                   >
-                    Cancel
+                    {t('cancel')}
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-                    disabled={isUpdatingCompetition}
+                    disabled={isSubmitting}
+                    className="flex-1 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
                   >
-                    {isUpdatingCompetition ? "Saving..." : "Save Changes"}
+                    {isSubmitting ? t('saving') : t('save')}
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+        {showDeleteGameModal && (
+          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-center">
+            <div className="relative p-5 border w-96 shadow-lg rounded-md bg-white">
+              <h3 className="text-lg font-medium leading-6 text-gray-900 mb-4">Confirm Game Deletion</h3>
+              <div className="mt-2">
+                <p className="text-sm text-gray-500">Are you sure you want to delete this game? Type 'DELETE' to confirm.</p>
+                <input
+                  type="text"
+                  className="mt-2 block w-full border border-gray-300 rounded-md shadow-sm p-2 text-gray-900"
+                  placeholder={t('typeDeleteUpper')}
+                  value={deleteGameConfirmationText}
+                  onChange={(e) => setDeleteGameConfirmationText(e.target.value)}
+                />
+              </div>
+              <div className="mt-4 flex justify-end">
+                <button
+                  type="button"
+                  onClick={closeDeleteGameModal}
+                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 mr-2"
+                  disabled={deletingGame}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDeleteGame}
+                  className={`px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 ${
+                    deleteGameConfirmationText.toUpperCase() !== 'DELETE' || deletingGame ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
+                  disabled={deleteGameConfirmationText.toUpperCase() !== 'DELETE' || deletingGame}
+                >
+                  {deletingGame ? 'Deleting...' : 'Delete'}
+                </button>
+              </div>
             </div>
           </div>
         )}

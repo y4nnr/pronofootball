@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from '../../hooks/useTranslation';
 
 interface User {
   id: string;
@@ -12,6 +13,7 @@ interface User {
 const DEFAULT_AVATAR = 'https://via.placeholder.com/40x40?text=User';
 
 export default function AdminUsers() {
+  const { t } = useTranslation('common');
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -293,27 +295,27 @@ export default function AdminUsers() {
               <h2 className="text-xl font-semibold mb-4 text-gray-900">{modalMode === 'add' ? 'Add User' : 'Edit User'}</h2>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Name<span className="text-red-500">*</span></label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('admin.users.name')}<span className="text-red-500">*</span></label>
                   <input
                     className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-                    placeholder="e.g. John Doe"
+                    placeholder={t('admin.users.namePlaceholder')}
                     value={name}
                     onChange={e => setName(e.target.value)}
                     disabled={formLoading}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Email<span className="text-red-500">*</span></label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('admin.users.email')}<span className="text-red-500">*</span></label>
                   <input
                     className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-                    placeholder="e.g. john@example.com"
+                    placeholder={t('admin.users.emailPlaceholder')}
                     value={email}
                     onChange={e => setEmail(e.target.value)}
                     disabled={formLoading}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Profile Picture</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('admin.users.profilePicture')}</label>
                   <div className="flex items-center space-x-4">
                     <label className="flex items-center">
                       <input
@@ -335,16 +337,16 @@ export default function AdminUsers() {
                         onChange={e => setProfilePictureMethod(e.target.value as 'upload')}
                         disabled={formLoading}
                       />
-                      <span className="ml-2">Upload</span>
+                      <span className="ml-2">{t('profile.uploadFile')}</span>
                     </label>
                   </div>
                 </div>
                 {profilePictureMethod === 'url' && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Profile Picture URL</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t('admin.users.profilePictureUrl')}</label>
                     <input
                       className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-                      placeholder="e.g. https://example.com/avatar.png"
+                      placeholder={t('admin.users.profileUrlPlaceholder')}
                       value={profilePictureUrl}
                       onChange={e => setProfilePictureUrl(e.target.value)}
                       disabled={formLoading}
@@ -361,7 +363,7 @@ export default function AdminUsers() {
                 )}
                 {profilePictureMethod === 'upload' && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Upload Profile Picture</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t('admin.users.uploadProfilePicture')}</label>
                     <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-gray-400 transition-colors">
                       <div className="space-y-1 text-center">
                         {!selectedFile ? (
@@ -371,7 +373,7 @@ export default function AdminUsers() {
                             </svg>
                             <div className="flex text-sm text-gray-600">
                               <label htmlFor="file-upload" className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
-                                <span>Upload a file</span>
+                                <span>{t('admin.users.uploadFile')}</span>
                                 <input
                                   id="file-upload"
                                   name="file-upload"
@@ -385,7 +387,7 @@ export default function AdminUsers() {
                                       // Validate file size
                                       const maxSize = 2 * 1024 * 1024; // 2MB
                                       if (file.size > maxSize) {
-                                        setFormError('File size must be less than 2MB');
+                                        setFormError(t('admin.users.fileSizeError'));
                                         return;
                                       }
                                       
@@ -400,9 +402,9 @@ export default function AdminUsers() {
                                   disabled={formLoading}
                                 />
                               </label>
-                              <p className="pl-1">or drag and drop</p>
+                              <p className="pl-1">{t('admin.users.dragDrop')}</p>
                             </div>
-                            <p className="text-xs text-gray-500">PNG, JPG, GIF up to 2MB</p>
+                            <p className="text-xs text-gray-500">{t('admin.users.fileTypes')}</p>
                           </>
                         ) : (
                           <div className="space-y-2">
@@ -421,7 +423,7 @@ export default function AdminUsers() {
                               className="text-sm text-red-600 hover:text-red-500"
                               disabled={formLoading}
                             >
-                              Remove
+                              {t('admin.users.remove')}
                             </button>
                           </div>
                         )}
@@ -431,11 +433,11 @@ export default function AdminUsers() {
                 )}
                 {modalMode === 'add' && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Password<span className="text-red-500">*</span></label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t('admin.users.password')}<span className="text-red-500">*</span></label>
                     <input
                       type="password"
                       className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-                      placeholder="Password"
+                      placeholder={t('admin.users.passwordPlaceholder')}
                       value={password}
                       onChange={e => setPassword(e.target.value)}
                       disabled={formLoading}
@@ -444,28 +446,28 @@ export default function AdminUsers() {
                 )}
                 {modalMode === 'edit' && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{t('admin.users.newPassword')}</label>
                     <input
                       type="password"
                       className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-                      placeholder="Enter new password to change it"
+                      placeholder={t('admin.users.newPasswordPlaceholder')}
                       value={password}
                       onChange={e => setPassword(e.target.value)}
                       disabled={formLoading}
                     />
-                    <span className="text-xs text-gray-500">Leave blank to keep current password. Enter a new password to change it.</span>
+                    <span className="text-xs text-gray-500">{t('admin.users.passwordHelp')}</span>
                   </div>
                 )}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('admin.users.role')}</label>
                   <select
                     className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                     value={role}
                     onChange={e => setRole(e.target.value)}
                     disabled={formLoading}
                   >
-                    <option value="user">User</option>
-                    <option value="admin">Admin</option>
+                    <option value="user">{t('admin.users.user')}</option>
+                    <option value="admin">{t('admin.users.admin')}</option>
                   </select>
                 </div>
                 {formError && <div className="text-red-600 text-sm mt-2">{formError}</div>}

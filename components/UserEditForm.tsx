@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import ShowPasswordButton from './ShowPasswordButton';
+import { useTranslation } from '../hooks/useTranslation';
 
 interface UserEditFormProps {
   user: {
@@ -22,6 +23,7 @@ export default function UserEditForm({ user, onSave, onCancel }: UserEditFormPro
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const { t } = useTranslation('common');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -127,7 +129,7 @@ export default function UserEditForm({ user, onSave, onCancel }: UserEditFormPro
             id="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder={showPassword ? "Hashed password shown" : "Click 'Show Password' to view current password"}
+            placeholder={showPassword ? t('profile.hashedPasswordShown') : t('profile.clickShowPassword')}
             className="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
             readOnly={showPassword}
           />

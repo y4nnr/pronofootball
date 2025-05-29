@@ -42,6 +42,7 @@ export default function TeamsAdmin() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
   const [editTeamId, setEditTeamId] = useState<string | null>(null);
@@ -191,9 +192,9 @@ export default function TeamsAdmin() {
 
   return (
     <div className="min-h-screen bg-[#18181b]">
-      <div className="max-w-3xl mx-auto py-8 px-4">
+      <div className="max-w-7xl mx-auto py-8 px-4">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Teams</h1>
+          <h1 className="text-3xl font-bold text-white">Teams</h1>
           <button
             onClick={openAddModal}
             className="px-4 py-2 bg-blue-600 text-white rounded-md shadow hover:bg-blue-700 transition"
@@ -201,164 +202,215 @@ export default function TeamsAdmin() {
             New Team
           </button>
         </div>
-        <div className="bg-white rounded-lg shadow p-6">
-          {teams.length === 0 ? (
-            <p className="text-gray-500">No teams found.</p>
-          ) : (
-            <div className="space-y-8">
-              {/* National Teams Section */}
-              {teams.filter(team => team.category === 'NATIONAL').length > 0 && (
-                <div>
-                  <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-                    <span className="mr-2">🏆</span>
-                    National Teams ({teams.filter(team => team.category === 'NATIONAL').length})
-                  </h2>
-                  <ul className="space-y-2">
-                    {teams
-                      .filter(team => team.category === 'NATIONAL')
-                      .sort((a, b) => a.name.localeCompare(b.name))
-                      .map((team) => (
-                        <li key={team.id} className="border border-gray-200 rounded-lg p-3 flex items-center justify-between hover:bg-gray-50 transition">
-                          <div className="flex items-center space-x-3">
-                            <img
-                              src={team.logo || DEFAULT_LOGO}
-                              alt={team.name + ' logo'}
-                              className="w-10 h-10 rounded-full object-cover border border-gray-200 bg-white"
-                              onError={(e) => {
-                                const target = e.currentTarget;
-                                if (target.src !== DEFAULT_LOGO) {
-                                  target.src = DEFAULT_LOGO;
-                                }
-                              }}
-                            />
-                            <div>
-                              <span className="text-lg text-gray-800 font-medium">{team.name}</span>
-                              {team.shortName && <span className="ml-2 text-sm text-gray-500">({team.shortName})</span>}
-                            </div>
-                          </div>
-                          <div className="flex space-x-2">
-                            <button
-                              onClick={() => openEditModal(team)}
-                              className="px-3 py-1 bg-yellow-400 text-white rounded hover:bg-yellow-500 transition text-sm"
-                            >
-                              Edit
-                            </button>
-                            <button
-                              onClick={() => openDeleteModal(team.id)}
-                              className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition text-sm"
-                            >
-                              Delete
-                            </button>
-                          </div>
-                        </li>
-                      ))}
-                  </ul>
-                </div>
-              )}
 
-              {/* Club Teams Section */}
-              {teams.filter(team => team.category === 'CLUB').length > 0 && (
-                <div>
-                  <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-                    <span className="mr-2">⚽</span>
-                    Club Teams ({teams.filter(team => team.category === 'CLUB').length})
-                  </h2>
-                  <ul className="space-y-2">
-                    {teams
-                      .filter(team => team.category === 'CLUB')
-                      .sort((a, b) => a.name.localeCompare(b.name))
-                      .map((team) => (
-                        <li key={team.id} className="border border-gray-200 rounded-lg p-3 flex items-center justify-between hover:bg-gray-50 transition">
-                          <div className="flex items-center space-x-3">
-                            <img
-                              src={team.logo || DEFAULT_LOGO}
-                              alt={team.name + ' logo'}
-                              className="w-10 h-10 rounded-full object-cover border border-gray-200 bg-white"
-                              onError={(e) => {
-                                const target = e.currentTarget;
-                                if (target.src !== DEFAULT_LOGO) {
-                                  target.src = DEFAULT_LOGO;
-                                }
-                              }}
-                            />
-                            <div>
-                              <span className="text-lg text-gray-800 font-medium">{team.name}</span>
-                              {team.shortName && <span className="ml-2 text-sm text-gray-500">({team.shortName})</span>}
-                            </div>
-                          </div>
-                          <div className="flex space-x-2">
-                            <button
-                              onClick={() => openEditModal(team)}
-                              className="px-3 py-1 bg-yellow-400 text-white rounded hover:bg-yellow-500 transition text-sm"
-                            >
-                              Edit
-                            </button>
-                            <button
-                              onClick={() => openDeleteModal(team.id)}
-                              className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition text-sm"
-                            >
-                              Delete
-                            </button>
-                          </div>
-                        </li>
-                      ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          )}
+        {/* Search Bar */}
+        <div className="mb-6">
+          <div className="relative max-w-md">
+            <input
+              type="text"
+              placeholder={t('admin.teams.searchPlaceholder')}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+            />
+            <svg
+              className="absolute left-3 top-2.5 h-5 w-5 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+          </div>
         </div>
+
+        {teams.length === 0 ? (
+          <div className="bg-white rounded-lg shadow p-6">
+            <p className="text-gray-500">{t('admin.teams.noTeams')}</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* National Teams Column */}
+            <div className="bg-white rounded-lg shadow p-6">
+              <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                <span className="mr-2">🏆</span>
+                National Teams ({teams.filter(team => 
+                  team.category === 'NATIONAL' && 
+                  team.name.toLowerCase().includes(searchQuery.toLowerCase())
+                ).length})
+              </h2>
+              <div className="space-y-3 max-h-[70vh] overflow-y-auto">
+                {teams
+                  .filter(team => 
+                    team.category === 'NATIONAL' && 
+                    team.name.toLowerCase().includes(searchQuery.toLowerCase())
+                  )
+                  .sort((a, b) => a.name.localeCompare(b.name))
+                  .map((team) => (
+                    <div key={team.id} className="border border-gray-200 rounded-lg p-3 hover:bg-gray-50 transition">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <img
+                            src={team.logo || DEFAULT_LOGO}
+                            alt={team.name + ' logo'}
+                            className="w-8 h-8 rounded-full object-cover border border-gray-200 bg-white"
+                            onError={(e) => {
+                              const target = e.currentTarget;
+                              if (target.src !== DEFAULT_LOGO) {
+                                target.src = DEFAULT_LOGO;
+                              }
+                            }}
+                          />
+                          <div>
+                            <div className="text-sm font-medium text-gray-800">{team.name}</div>
+                            {team.shortName && <div className="text-xs text-gray-500">{team.shortName}</div>}
+                          </div>
+                        </div>
+                        <div className="flex space-x-1">
+                          <button
+                            onClick={() => openEditModal(team)}
+                            className="px-2 py-1 bg-yellow-400 text-white rounded hover:bg-yellow-500 transition text-xs"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => openDeleteModal(team.id)}
+                            className="px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition text-xs"
+                          >
+                            Del
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                {teams.filter(team => 
+                  team.category === 'NATIONAL' && 
+                  team.name.toLowerCase().includes(searchQuery.toLowerCase())
+                ).length === 0 && (
+                  <p className="text-gray-500 text-sm">No national teams found.</p>
+                )}
+              </div>
+            </div>
+
+            {/* Club Teams Column */}
+            <div className="bg-white rounded-lg shadow p-6">
+              <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                <span className="mr-2">⚽</span>
+                Club Teams ({teams.filter(team => 
+                  team.category === 'CLUB' && 
+                  team.name.toLowerCase().includes(searchQuery.toLowerCase())
+                ).length})
+              </h2>
+              <div className="space-y-3 max-h-[70vh] overflow-y-auto">
+                {teams
+                  .filter(team => 
+                    team.category === 'CLUB' && 
+                    team.name.toLowerCase().includes(searchQuery.toLowerCase())
+                  )
+                  .sort((a, b) => a.name.localeCompare(b.name))
+                  .map((team) => (
+                    <div key={team.id} className="border border-gray-200 rounded-lg p-3 hover:bg-gray-50 transition">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <img
+                            src={team.logo || DEFAULT_LOGO}
+                            alt={team.name + ' logo'}
+                            className="w-8 h-8 rounded-full object-cover border border-gray-200 bg-white"
+                            onError={(e) => {
+                              const target = e.currentTarget;
+                              if (target.src !== DEFAULT_LOGO) {
+                                target.src = DEFAULT_LOGO;
+                              }
+                            }}
+                          />
+                          <div>
+                            <div className="text-sm font-medium text-gray-800">{team.name}</div>
+                            {team.shortName && <div className="text-xs text-gray-500">{team.shortName}</div>}
+                          </div>
+                        </div>
+                        <div className="flex space-x-1">
+                          <button
+                            onClick={() => openEditModal(team)}
+                            className="px-2 py-1 bg-yellow-400 text-white rounded hover:bg-yellow-500 transition text-xs"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => openDeleteModal(team.id)}
+                            className="px-2 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition text-xs"
+                          >
+                            Del
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                {teams.filter(team => 
+                  team.category === 'CLUB' && 
+                  team.name.toLowerCase().includes(searchQuery.toLowerCase())
+                ).length === 0 && (
+                  <p className="text-gray-500 text-sm">No club teams found.</p>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Add/Edit Modal */}
         {showModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
             <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6 relative animate-fade-in">
               <h2 className="text-xl font-semibold mb-4 text-gray-900">{modalMode === 'add' ? 'Add Team' : 'Edit Team'}</h2>
-                        <div className="space-y-4">
-                          <div>
+              <div className="space-y-4">
+                <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Team Name<span className="text-red-500">*</span></label>
-                            <input
+                  <input
                     className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-                    placeholder="e.g. Paris Saint-Germain"
+                    placeholder={t('admin.teams.namePlaceholder')}
                     value={name}
                     onChange={e => setName(e.target.value)}
                     disabled={loading}
-                            />
-                          </div>
-                          <div>
+                  />
+                </div>
+                <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Short Name</label>
-                            <input
+                  <input
                     className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-                    placeholder="e.g. PSG"
+                    placeholder={t('admin.teams.shortNamePlaceholder')}
                     value={shortName}
                     onChange={e => setShortName(e.target.value)}
                     disabled={loading}
-                            />
-                          </div>
-                          <div>
+                  />
+                </div>
+                <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Logo URL</label>
-                            <input
+                  <input
                     className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
-                    placeholder="e.g. https://upload.wikimedia.org/wikipedia/en/3/3b/Paris_Saint-Germain_F.C..svg"
+                    placeholder={t('admin.teams.logoPlaceholder')}
                     value={logo}
                     onChange={e => setLogo(e.target.value)}
                     disabled={loading}
-                            />
-                          </div>
-                          <div>
+                  />
+                </div>
+                <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                            <select
+                  <select
                     className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900"
                     value={category}
                     onChange={e => setCategory(e.target.value as 'NATIONAL' | 'CLUB')}
                     disabled={loading}
-                            >
-                              <option value="NATIONAL">NATIONAL</option>
-                              <option value="CLUB">CLUB</option>
-                            </select>
-                          </div>
+                  >
+                    <option value="NATIONAL">NATIONAL</option>
+                    <option value="CLUB">CLUB</option>
+                  </select>
+                </div>
                 {error && <div className="text-red-600 text-sm mt-2">{error}</div>}
-                        </div>
+              </div>
               <div className="mt-6 flex justify-end space-x-2">
                 <button
                   onClick={() => setShowModal(false)}
@@ -372,11 +424,11 @@ export default function TeamsAdmin() {
                   className="px-4 py-2 bg-blue-600 text-white rounded-md shadow hover:bg-blue-700 transition disabled:opacity-50"
                   disabled={loading}
                 >
-                  {loading ? (modalMode === 'add' ? 'Creating...' : 'Saving...') : (modalMode === 'add' ? 'Create' : 'Save')}
+                  {loading ? (modalMode === 'add' ? t('creating') : t('saving')) : (modalMode === 'add' ? t('create') : t('save'))}
                 </button>
-                      </div>
-                    </div>
-                  </div>
+              </div>
+            </div>
+          </div>
         )}
 
         {/* Delete Confirmation Modal */}
@@ -398,7 +450,7 @@ export default function TeamsAdmin() {
                   className="px-4 py-2 bg-red-600 text-white rounded-md shadow hover:bg-red-700 transition disabled:opacity-50"
                   disabled={deleteLoading}
                   >
-                  {deleteLoading ? 'Deleting...' : 'Delete'}
+                  {deleteLoading ? t('deleting') : t('delete')}
                   </button>
               </div>
             </div>
