@@ -1,0 +1,186 @@
+{
+  "backupDate": "2025-05-29T01:25:32.856Z",
+  "totalUsers": 11,
+  "totalTeams": 90,
+  "totalCompetitions": 4,
+  "totalGames": 348,
+  "totalBets": 3145,
+  "competitions": [
+    {
+      "name": "Euro 2016",
+      "games": 51,
+      "bets": 408,
+      "participants": 8,
+      "standings": [
+        {
+          "userName": "Renato",
+          "points": 43
+        },
+        {
+          "userName": "Fifi",
+          "points": 35
+        },
+        {
+          "userName": "Keke",
+          "points": 34
+        },
+        {
+          "userName": "Baptiste",
+          "points": 32
+        },
+        {
+          "userName": "Yann",
+          "points": 32
+        },
+        {
+          "userName": "Nono",
+          "points": 29
+        },
+        {
+          "userName": "Benouz",
+          "points": 25
+        },
+        {
+          "userName": "Steph",
+          "points": 24
+        }
+      ]
+    },
+    {
+      "name": "UEFA Champions League 2018/19",
+      "games": 125,
+      "bets": 1125,
+      "participants": 9,
+      "standings": [
+        {
+          "userName": "Benouz",
+          "points": 109
+        },
+        {
+          "userName": "Keke",
+          "points": 101
+        },
+        {
+          "userName": "Renato",
+          "points": 98
+        },
+        {
+          "userName": "Baptiste",
+          "points": 93
+        },
+        {
+          "userName": "Steph",
+          "points": 90
+        },
+        {
+          "userName": "Fifi",
+          "points": 89
+        },
+        {
+          "userName": "Nono",
+          "points": 85
+        },
+        {
+          "userName": "Francky",
+          "points": 82
+        },
+        {
+          "userName": "Yann",
+          "points": 76
+        }
+      ]
+    },
+    {
+      "name": "World Cup 2018 Russia",
+      "games": 64,
+      "bets": 640,
+      "participants": 10,
+      "standings": [
+        {
+          "userName": "Renato",
+          "points": 47
+        },
+        {
+          "userName": "Benouz",
+          "points": 44
+        },
+        {
+          "userName": "Baptiste",
+          "points": 44
+        },
+        {
+          "userName": "Steph",
+          "points": 42
+        },
+        {
+          "userName": "Francky",
+          "points": 41
+        },
+        {
+          "userName": "Chacha",
+          "points": 41
+        },
+        {
+          "userName": "Keke",
+          "points": 40
+        },
+        {
+          "userName": "Fifi",
+          "points": 39
+        },
+        {
+          "userName": "Nono",
+          "points": 37
+        },
+        {
+          "userName": "Yann",
+          "points": 33
+        }
+      ]
+    },
+    {
+      "name": "UEFA Champions League 2019/20",
+      "games": 108,
+      "bets": 972,
+      "participants": 9,
+      "standings": [
+        {
+          "userName": "Keke",
+          "points": 88
+        },
+        {
+          "userName": "Benouz",
+          "points": 82
+        },
+        {
+          "userName": "Yann",
+          "points": 80
+        },
+        {
+          "userName": "Francky",
+          "points": 78
+        },
+        {
+          "userName": "Fifi",
+          "points": 72
+        },
+        {
+          "userName": "Renato",
+          "points": 70
+        },
+        {
+          "userName": "Steph",
+          "points": 68
+        },
+        {
+          "userName": "Baptiste",
+          "points": 68
+        },
+        {
+          "userName": "Nono",
+          "points": 64
+        }
+      ]
+    }
+  ]
+}
