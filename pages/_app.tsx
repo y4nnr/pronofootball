@@ -10,7 +10,7 @@ function App({ Component, pageProps }: AppProps) {
     <SessionProvider session={pageProps.session}>
       <LanguageProvider>
         <Navbar />
-        <main className="pt-16">
+        <main className="pt-navbar">
           <Component {...pageProps} />
         </main>
       </LanguageProvider>

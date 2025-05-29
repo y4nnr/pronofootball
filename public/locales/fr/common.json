@@ -1,11 +1,27 @@
 {
-  "welcome": "Bienvenue sur PronoFootball",
+  "welcome": "Bienvenue sur PronoFootball.club",
   "getStarted": "Commencer",
   "goToDashboard": "Aller au Tableau de Bord",
   "homepage": {
-    "subtitle": "Prédisez les résultats des matchs et rivalisez avec vos amis !"
+    "subtitle": "Prédisez les résultats des matchs et rivalisez avec vos amis !",
+    "loginSubtitle": "Connectez-vous à votre compte",
+    "features": {
+      "predictions": {
+        "title": "Prédictions Faciles",
+        "description": "Faites vos pronostics sur vos matchs favoris en quelques clics."
+      },
+      "competitions": {
+        "title": "Compétitions",
+        "description": "Participez à des tournois passionnants avec vos amis."
+      },
+      "statistics": {
+        "title": "Statistiques",
+        "description": "Analysez vos performances et progressez constamment."
+      }
+    }
   },
-  "signIn": "Connectez-vous à votre compte",
+  "signIn": "Se connecter",
+  "username": "Nom d'utilisateur",
   "email": "Adresse e-mail",
   "password": "Mot de passe",
   "signInButton": "Se connecter",
@@ -66,7 +82,7 @@
       "aiComingSoonDescription": "Nous travaillons sur des suggestions personnalisées basées sur l'IA pour améliorer vos prédictions.",
       "noNews": "Aucune actualité disponible",
       "welcome": {
-        "title": "Bienvenue sur PronoFootball !",
+        "title": "Bienvenue sur PronoFootball.club !",
         "content": "Commencez à faire vos prédictions et rivalisez avec les autres utilisateurs."
       },
       "euro2024": {

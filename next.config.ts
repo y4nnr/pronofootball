@@ -10,7 +10,7 @@ const nextConfig = {
     domains: ['i.pravatar.cc', 'placehold.co'],
   },
   i18n: {
-    defaultLocale: 'en',
+    defaultLocale: 'fr',
     locales: ['en', 'fr'],
   },
 }

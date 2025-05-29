@@ -135,10 +135,10 @@ export default function MyCompetitionsPage() {
 
   return (
     <div className="max-w-3xl mx-auto py-8">
-      <h1 className="text-2xl font-bold mb-6">My Competitions</h1>
+      <h1 className="text-2xl font-bold mb-6">{translations[language].title}</h1>
       <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-2">Ongoing Competitions</h2>
-        {joinedOngoing.length === 0 ? <p>No ongoing competitions.</p> : (
+        <h2 className="text-xl font-semibold mb-2">{language === 'fr' ? 'Compétitions en Cours' : 'Ongoing Competitions'}</h2>
+        {joinedOngoing.length === 0 ? <p>{language === 'fr' ? 'Aucune compétition en cours.' : 'No ongoing competitions.'}</p> : (
           <ul>
             {joinedOngoing.map((comp: any) => (
               <li key={comp.id} className="mb-2">
@@ -149,21 +149,23 @@ export default function MyCompetitionsPage() {
         )}
       </section>
       <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-2">Open Competitions</h2>
-        {openNotJoined.length === 0 ? <p>No open competitions to join.</p> : (
+        <h2 className="text-xl font-semibold mb-2">{language === 'fr' ? 'Compétitions Ouvertes' : 'Open Competitions'}</h2>
+        {openNotJoined.length === 0 ? <p>{language === 'fr' ? 'Aucune compétition ouverte à rejoindre.' : 'No open competitions to join.'}</p> : (
           <ul>
             {openNotJoined.map((comp: any) => (
               <li key={comp.id} className="mb-2 flex items-center gap-2">
                 <span>{comp.name}</span>
-                <button className="ml-2 px-2 py-1 bg-green-600 text-white rounded" onClick={() => handleJoin(comp.id)}>Join</button>
+                <button className="ml-2 px-2 py-1 bg-green-600 text-white rounded" onClick={() => handleJoin(comp.id)}>
+                  {language === 'fr' ? 'Rejoindre' : 'Join'}
+                </button>
               </li>
             ))}
           </ul>
         )}
       </section>
       <section>
-        <h2 className="text-xl font-semibold mb-2">Terminated Competitions</h2>
-        {joinedTerminated.length === 0 ? <p>No terminated competitions.</p> : (
+        <h2 className="text-xl font-semibold mb-2">{language === 'fr' ? 'Compétitions Terminées' : 'Terminated Competitions'}</h2>
+        {joinedTerminated.length === 0 ? <p>{language === 'fr' ? 'Aucune compétition terminée.' : 'No terminated competitions.'}</p> : (
           <ul>
             {joinedTerminated.map((comp: any) => (
               <li key={comp.id} className="mb-2">

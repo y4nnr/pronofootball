@@ -57,8 +57,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           const totalPoints = user.bets.reduce((sum: number, bet: any) => sum + bet.points, 0);
           const accuracy = totalBets > 0 ? (totalPoints / (totalBets * 3)) * 100 : 0;
           
-          // Calculate actual competition wins (not games with points)
-          const competitionWins = competitions.filter((comp: any) => comp.winner?.id === user.id).length;
+          // Calculate actual competition wins (not games with points) - only finished competitions
+          const competitionWins = competitions.filter((comp: any) => comp.winner?.id === user.id && comp.status === 'FINISHED').length;
           
           // NO STREAK CALCULATION FROM HISTORICAL DATA
           // All streaks should be 0 until the first real competition starts
@@ -83,7 +83,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           };
         } else {
           // For existing stats, recalculate competition wins and reset streaks to 0
-          const competitionWins = competitions.filter((comp: any) => comp.winner?.id === user.id).length;
+          const competitionWins = competitions.filter((comp: any) => comp.winner?.id === user.id && comp.status === 'FINISHED').length;
           
           // NO STREAK CALCULATION FROM HISTORICAL DATA
           // All streaks should be 0 until the first real competition starts
@@ -135,7 +135,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       .map(user => ({
         ...user,
         averagePoints: user.stats.totalPredictions > 0 
-          ? Math.round((user.stats.totalPoints / user.stats.totalPredictions) * 100) / 100
+          ? parseFloat((user.stats.totalPoints / user.stats.totalPredictions).toFixed(3))
           : 0
       }))
       .sort((a, b) => b.averagePoints - a.averagePoints)
@@ -170,6 +170,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           }
         });
         
+        // Get the total number of games for this competition
+        const gameCount = await prisma.game.count({
+          where: {
+            competitionId: comp.id
+          }
+        });
+        
         return {
           id: comp.id,
           name: comp.name,
@@ -179,16 +186,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           winner: comp.winner,
           winnerPoints,
           participantCount,
+          gameCount,
           logo: comp.logo
         };
       })
     );
 
+    // Sort competitions by start date - most recent first (newest at top, oldest at bottom)
+    const sortedCompetitions = competitionsData.sort((a, b) => {
+      return new Date(b.startDate).getTime() - new Date(a.startDate).getTime();
+    });
+
     res.status(200).json({
       topPlayersByPoints,
       topPlayersByAverage,
       totalUsers,
-      competitions: competitionsData
+      competitions: sortedCompetitions
     });
 
   } catch (error) {

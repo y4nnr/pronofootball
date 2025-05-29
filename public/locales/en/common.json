@@ -1,15 +1,31 @@
 {
-  "welcome": "Welcome to PronoFootball",
+  "welcome": "Welcome to PronoFootball.club",
   "getStarted": "Get Started",
   "goToDashboard": "Go to Dashboard",
   "homepage": {
-    "subtitle": "Predict match outcomes and compete with friends!"
+    "subtitle": "Predict match outcomes and compete with friends!",
+    "loginSubtitle": "Log in to your account",
+    "features": {
+      "predictions": {
+        "title": "Easy Predictions",
+        "description": "Make your predictions on your favorite matches with just a few clicks."
+      },
+      "competitions": {
+        "title": "Competitions",
+        "description": "Participate in exciting tournaments with your friends."
+      },
+      "statistics": {
+        "title": "Statistics",
+        "description": "Analyze your performance and constantly improve."
+      }
+    }
   },
-  "signIn": "Sign in to your account",
+  "signIn": "Log In",
+  "username": "Username",
   "email": "Email address",
   "password": "Password",
-  "signInButton": "Sign in",
-  "signingIn": "Signing in...",
+  "signInButton": "Log In",
+  "signingIn": "Logging in...",
   "loading": "Loading...",
   "save": "Save",
   "saving": "Saving...",
@@ -19,6 +35,7 @@
   "deleting": "Deleting...",
   "typeDelete": "type 'delete'",
   "typeDeleteUpper": "type 'DELETE'",
+  "note": "Note",
   "dashboard": {
     "welcome": "Welcome",
     "overview": "Here's an overview of your activity",
@@ -62,7 +79,7 @@
       "title": "Latest News",
       "noNews": "No news available",
       "welcome": {
-        "title": "Welcome to PronoFootball!",
+        "title": "Welcome to PronoFootball.club!",
         "content": "Start making your predictions and compete with other users."
       },
       "euro2024": {
@@ -200,7 +217,6 @@
   },
   "cancel": "Cancel",
   "submitting": "Submitting...",
-  "note": "Note",
   "back": "Back",
   "competitions": {
     "title": "All Competitions",

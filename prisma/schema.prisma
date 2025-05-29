@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
   binaryTargets = ["native", "linux-musl", "linux-arm64-openssl-1.1.x"]
 }
 
@@ -9,105 +9,105 @@ datasource db {
 }
 
 model User {
-  id            String   @id @default(cuid())
-  name          String
-  email         String   @unique
-  hashedPassword String
-  role          String   @default("user")
-  competitions  CompetitionUser[]
-  bets          Bet[]
-  stats         UserStats?
-  competitionsWon Competition[] @relation("CompetitionWinner")
-  competitionsLastPlace Competition[] @relation("CompetitionLastPlace")
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  profilePictureUrl String?
-  needsPasswordChange Boolean @default(false)
+  id                    String            @id @default(cuid())
+  email                 String            @unique
+  name                  String
+  hashedPassword        String
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+  role                  String            @default("user")
+  profilePictureUrl     String?
+  needsPasswordChange   Boolean           @default(false)
+  bets                  Bet[]
+  competitionsLastPlace Competition[]     @relation("CompetitionLastPlace")
+  competitionsWon       Competition[]     @relation("CompetitionWinner")
+  competitions          CompetitionUser[]
+  stats                 UserStats?
 }
 
 model UserStats {
-  id                String   @id @default(cuid())
-  user              User     @relation(fields: [userId], references: [id])
-  userId            String   @unique
-  totalPredictions  Int      @default(0)
-  totalPoints       Int      @default(0)
-  accuracy          Float    @default(0)
-  wins              Int      @default(0)
-  longestStreak     Int      @default(0)
-  exactScoreStreak  Int      @default(0)
-  updatedAt         DateTime @updatedAt
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  totalPredictions Int      @default(0)
+  totalPoints      Int      @default(0)
+  accuracy         Float    @default(0)
+  wins             Int      @default(0)
+  longestStreak    Int      @default(0)
+  exactScoreStreak Int      @default(0)
+  updatedAt        DateTime @updatedAt
+  user             User     @relation(fields: [userId], references: [id])
 }
 
 model Competition {
-  id          String   @id @default(cuid())
+  id          String            @id @default(cuid())
   name        String
   description String
-  logo        String?
   startDate   DateTime
   endDate     DateTime
-  status      String   @default("upcoming")
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  status      String            @default("upcoming")
+  lastPlaceId String?
+  logo        String?
+  winnerId    String?
+  lastPlace   User?             @relation("CompetitionLastPlace", fields: [lastPlaceId], references: [id])
+  winner      User?             @relation("CompetitionWinner", fields: [winnerId], references: [id])
   users       CompetitionUser[]
   games       Game[]
-  winner      User?    @relation("CompetitionWinner", fields: [winnerId], references: [id])
-  winnerId    String?
-  lastPlace   User?    @relation("CompetitionLastPlace", fields: [lastPlaceId], references: [id])
-  lastPlaceId String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
 }
 
 model CompetitionUser {
-  id            String   @id @default(cuid())
-  competition   Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
-  competitionId String
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id            String      @id @default(cuid())
   userId        String
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  competitionId String
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  competition   Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([competitionId, userId])
 }
 
 model Team {
-  id          String   @id @default(cuid())
-  name        String   @unique
-  shortName   String?
-  logo        String?
-  category    TeamCategory @default(NATIONAL)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  homeGames   Game[]   @relation("HomeTeam")
-  awayGames   Game[]   @relation("AwayTeam")
+  id        String       @id @default(cuid())
+  name      String       @unique
+  shortName String?
+  logo      String?
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  category  TeamCategory @default(NATIONAL)
+  awayGames Game[]       @relation("AwayTeam")
+  homeGames Game[]       @relation("HomeTeam")
 }
 
 model Game {
-  id          String   @id @default(cuid())
-  competition Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+  id            String      @id @default(cuid())
   competitionId String
-  homeTeam    Team     @relation("HomeTeam", fields: [homeTeamId], references: [id])
-  homeTeamId  String
-  awayTeam    Team     @relation("AwayTeam", fields: [awayTeamId], references: [id])
-  awayTeamId  String
-  date        DateTime
-  status      GameStatus @default(UPCOMING)
-  homeScore   Int?
-  awayScore   Int?
-  bets        Bet[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  date          DateTime
+  status        GameStatus  @default(UPCOMING)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  awayScore     Int?
+  awayTeamId    String
+  homeScore     Int?
+  homeTeamId    String
+  bets          Bet[]
+  awayTeam      Team        @relation("AwayTeam", fields: [awayTeamId], references: [id])
+  competition   Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+  homeTeam      Team        @relation("HomeTeam", fields: [homeTeamId], references: [id])
 }
 
 model Bet {
   id        String   @id @default(cuid())
-  game      Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
-  gameId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
-  score1    Int
-  score2    Int
+  gameId    String
   points    Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  score1    Int
+  score2    Int
+  game      Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([gameId, userId])
 }
@@ -142,4 +142,3 @@ enum TeamCategory {
   NATIONAL
   CLUB
 }
-

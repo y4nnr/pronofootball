@@ -6,15 +6,24 @@ import { prisma } from '../../lib/prisma';
 import { CheckCircleIcon, PlusCircleIcon, ArchiveBoxIcon, ArrowRightIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
 import { useRouter } from 'next/router';
 import Navbar from '../../components/Navbar';
+import { useState } from 'react';
+
+// Utility function to format dates consistently
+const formatDate = (dateString: string | Date) => {
+  const date = new Date(dateString);
+  return date.toISOString().split('T')[0]; // Returns YYYY-MM-DD format
+};
 
 type Competition = {
   id: string;
   name: string;
   description: string;
-  logo?: string;
+  logo?: string | null;
   startDate: Date;
   endDate: Date;
   status: string;
+  winnerId?: string | null;
+  lastPlaceId?: string | null;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -34,10 +43,10 @@ type CompetitionsPageProps = {
 };
 
 const SectionCard = ({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) => (
-  <div className="bg-white rounded-xl shadow-md border border-gray-300 p-6 mb-8">
+  <div className="bg-white rounded-2xl shadow-modern border border-neutral-200/50 p-6 mb-8">
     <div className="flex items-center mb-6">
       <span className="mr-3">{icon}</span>
-      <h2 className="text-xl font-bold text-gray-900">{title}</h2>
+      <h2 className="text-xl font-bold text-neutral-900">{title}</h2>
     </div>
     {children}
   </div>
@@ -50,7 +59,7 @@ const CompetitionCard = ({ competition, actionLabel, actionIcon, onAction, disab
   onAction?: () => void;
   disabled?: boolean;
 }) => (
-  <div className="bg-gray-50 border border-gray-300 rounded-xl shadow-sm p-5 flex flex-col justify-between hover:shadow-md transition-shadow">
+  <div className="bg-neutral-50 border border-neutral-200/50 rounded-2xl shadow-modern p-5 flex flex-col justify-between hover:shadow-modern-lg transition-all duration-200 hover:scale-[1.02]">
     <div>
       <div className="flex items-center space-x-3 mb-2">
         {competition.logo ? (
@@ -60,22 +69,25 @@ const CompetitionCard = ({ competition, actionLabel, actionIcon, onAction, disab
             className="h-8 w-8 object-contain flex-shrink-0"
           />
         ) : (
-          <div className="h-8 w-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-            <span className="text-blue-600 font-bold text-sm">
+          <div className="h-8 w-8 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0">
+            <span className="text-primary-600 font-bold text-sm">
               {competition.name.charAt(0)}
             </span>
           </div>
         )}
-        <h3 className="text-lg font-bold text-gray-900 flex-1">{competition.name}</h3>
+        <h3 className="text-lg font-bold text-neutral-900 flex-1">{competition.name}</h3>
       </div>
-      <div className="text-xs text-gray-500 mb-3">
-        <p><span className="font-medium">Start:</span> {new Date(competition.startDate).toLocaleDateString()}</p>
-        <p><span className="font-medium">End:</span> {new Date(competition.endDate).toLocaleDateString()}</p>
+      <div className="text-xs text-neutral-500 mb-3">
+        <p><span className="font-medium">Start:</span> {formatDate(competition.startDate)}</p>
+        <p><span className="font-medium">End:</span> {formatDate(competition.endDate)}</p>
       </div>
     </div>
     <button
-      className={`mt-2 flex items-center justify-center px-3 py-1.5 rounded-lg font-medium text-sm transition
-        ${disabled ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
+      className={`mt-2 flex items-center justify-center px-3 py-1.5 rounded-xl font-medium text-sm transition-all duration-200 shadow-modern ${
+        disabled 
+          ? 'bg-neutral-200 text-neutral-400 cursor-not-allowed' 
+          : 'bg-primary-600 text-white hover:bg-primary-700 hover:shadow-modern-lg hover:scale-105'
+      }`}
       onClick={onAction}
       disabled={disabled}
     >
@@ -99,25 +111,27 @@ export default function CompetitionsPage({
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-neutral-50 to-neutral-100">
       <Navbar />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center space-x-3 mb-2">
-            <PencilSquareIcon className="h-8 w-8 text-blue-600" />
-            <h1 className="text-3xl font-bold text-gray-900">
+            <div className="p-2 bg-primary-500 rounded-xl shadow-modern">
+              <PencilSquareIcon className="h-6 w-6 text-white" />
+            </div>
+            <h1 className="text-3xl font-bold gradient-text-competitions">
               {t('competitions.title')}
             </h1>
           </div>
-          <p className="text-gray-600">
+          <p className="subtitle-text">
             {t('competitions.subtitle')}
           </p>
         </div>
 
         {/* Joined Competitions */}
-        <SectionCard icon={<CheckCircleIcon className="h-6 w-6 text-green-500" />} title={t('competitions.joined')}>
+        <SectionCard icon={<div className="p-1.5 bg-accent-500 rounded-lg"><CheckCircleIcon className="h-4 w-4 text-white" /></div>} title={t('competitions.joined')}>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {joinedCompetitions.length > 0 ? (
               joinedCompetitions.map((competition) => (
@@ -130,13 +144,13 @@ export default function CompetitionsPage({
                 />
               ))
             ) : (
-              <div className="col-span-full text-center text-gray-500 py-8">{t('competitions.noJoined')}</div>
+              <div className="col-span-full text-center text-neutral-500 py-8">{t('competitions.noJoined')}</div>
             )}
           </div>
         </SectionCard>
         
         {/* Available Competitions */}
-        <SectionCard icon={<PlusCircleIcon className="h-6 w-6 text-blue-500" />} title={t('competitions.available')}>
+        <SectionCard icon={<div className="p-1.5 bg-primary-500 rounded-lg"><PlusCircleIcon className="h-4 w-4 text-white" /></div>} title={t('competitions.available')}>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {availableCompetitions.length > 0 ? (
               availableCompetitions.map((competition) => (
@@ -149,13 +163,13 @@ export default function CompetitionsPage({
                 />
               ))
             ) : (
-              <div className="col-span-full text-center text-gray-500 py-8">{t('competitions.noAvailable')}</div>
+              <div className="col-span-full text-center text-neutral-500 py-8">{t('competitions.noAvailable')}</div>
             )}
           </div>
         </SectionCard>
         
         {/* Archived Competitions */}
-        <SectionCard icon={<ArchiveBoxIcon className="h-6 w-6 text-gray-500" />} title={t('competitions.archived')}>
+        <SectionCard icon={<div className="p-1.5 bg-neutral-500 rounded-lg"><ArchiveBoxIcon className="h-4 w-4 text-white" /></div>} title={t('competitions.archived')}>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {archivedCompetitions.length > 0 ? (
               archivedCompetitions.map((competition) => (
@@ -168,7 +182,7 @@ export default function CompetitionsPage({
                 />
               ))
             ) : (
-              <div className="col-span-full text-center text-gray-500 py-8">{t('competitions.noArchived')}</div>
+              <div className="col-span-full text-center text-neutral-500 py-8">{t('competitions.noArchived')}</div>
             )}
           </div>
         </SectionCard>
@@ -206,7 +220,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     },
   });
 
-  const joinedCompetitionIds = userCompetitions.map((uc: CompetitionUser) => uc.competitionId);
+  const joinedCompetitionIds = userCompetitions.map((uc: { competitionId: string }) => uc.competitionId);
   const now = new Date();
 
   // Filter competitions into three groups

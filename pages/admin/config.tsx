@@ -120,15 +120,15 @@ export default function AdminConfig() {
               </div>
             </div>
 
-            <div className="flex items-center p-6 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors border border-purple-200 opacity-50 cursor-not-allowed">
+            <div className="flex items-center p-6 bg-accent-50 rounded-lg hover:bg-accent-100 transition-colors border border-accent-200 opacity-50 cursor-not-allowed">
               <div className="flex-1">
                 <div className="flex items-center mb-2">
-                  <svg className="h-6 w-6 text-purple-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="h-6 w-6 text-accent-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                   </svg>
-                  <h3 className="font-medium text-purple-900">{t('admin.users.title')}</h3>
+                  <h3 className="font-medium text-accent-900">{t('admin.users.title')}</h3>
                 </div>
-                <p className="text-sm text-purple-700">{t('admin.users.manageUsersDesc')}</p>
+                <p className="text-sm text-accent-700">{t('admin.users.manageUsersDesc')}</p>
               </div>
             </div>
           </div>

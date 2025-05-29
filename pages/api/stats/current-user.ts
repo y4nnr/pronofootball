@@ -33,13 +33,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     // Calculate stats from bets if no UserStats record exists
-    let stats = user.stats;
+    let calculatedStats;
     
-    if (!stats) {
+    if (!user.stats) {
       const totalBets = user.bets.length;
       const totalPoints = user.bets.reduce((sum: number, bet: any) => sum + bet.points, 0);
       const accuracy = totalBets > 0 ? (totalPoints / (totalBets * 3)) * 100 : 0;
-      const wins = user.bets.filter((bet: any) => bet.points > 0).length;
+      
+      // Calculate actual competition wins (consistent with leaderboard API) - only finished competitions
+      const competitions = await prisma.competition.findMany({
+        where: { 
+          winnerId: user.id,
+          status: 'FINISHED'
+        }
+      });
+      const wins = competitions.length;
       
       // Calculate longest streak
       let longestStreak = 0;
@@ -69,13 +77,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
       }
 
-      stats = {
+      calculatedStats = {
         totalPredictions: totalBets,
         totalPoints,
         accuracy: Math.round(accuracy * 100) / 100,
         wins,
         longestStreak,
         exactScoreStreak
+      };
+    } else {
+      calculatedStats = {
+        totalPredictions: user.stats.totalPredictions,
+        totalPoints: user.stats.totalPoints,
+        accuracy: user.stats.accuracy,
+        wins: user.stats.wins,
+        longestStreak: user.stats.longestStreak,
+        exactScoreStreak: user.stats.exactScoreStreak
       };
     }
 
@@ -94,17 +111,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       .sort((a: any, b: any) => b.totalPoints - a.totalPoints);
 
     const ranking = userRankings.findIndex((u: any) => u.id === user.id) + 1;
-    const averagePoints = stats.totalPredictions > 0 
-      ? Math.round((stats.totalPoints / stats.totalPredictions) * 100) / 100
+    const averagePoints = calculatedStats.totalPredictions > 0 
+      ? parseFloat((calculatedStats.totalPoints / calculatedStats.totalPredictions).toFixed(2))
       : 0;
 
     const currentUserStats = {
-      totalPoints: stats.totalPoints,
-      totalPredictions: stats.totalPredictions,
-      accuracy: stats.accuracy,
-      longestStreak: stats.longestStreak,
-      exactScoreStreak: stats.exactScoreStreak,
-      wins: stats.wins,
+      totalPoints: calculatedStats.totalPoints,
+      totalPredictions: calculatedStats.totalPredictions,
+      accuracy: calculatedStats.accuracy,
+      longestStreak: calculatedStats.longestStreak,
+      exactScoreStreak: calculatedStats.exactScoreStreak,
+      wins: calculatedStats.wins,
       ranking,
       averagePoints
     };

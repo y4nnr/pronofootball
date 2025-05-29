@@ -54,7 +54,7 @@ export default async function handler(
   } else if (req.method === 'PUT') {
     // Handle updating competition details
     const { competitionId } = req.query;
-    const { name, description, startDate, endDate, logo } = req.body;
+    const { name, description, startDate, endDate, logo, status } = req.body;
 
     if (!competitionId || Array.isArray(competitionId)) {
       return res.status(400).json({ error: 'Invalid competition ID' });
@@ -65,17 +65,24 @@ export default async function handler(
     }
 
     try {
+      const updateData: any = {
+        name,
+        description,
+        startDate: new Date(startDate),
+        endDate: new Date(endDate),
+        logo: logo || null,
+      };
+
+      // Only update status if it's provided and valid
+      if (status && ['ACTIVE', 'FINISHED', 'CANCELLED'].includes(status)) {
+        updateData.status = status;
+      }
+
       const updatedCompetition = await prisma.competition.update({
         where: {
           id: competitionId,
         },
-        data: {
-          name,
-          description,
-          startDate: new Date(startDate),
-          endDate: new Date(endDate),
-          logo: logo || null,
-        },
+        data: updateData,
         include: {
           games: {
             include: {

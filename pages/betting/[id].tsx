@@ -3,6 +3,8 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { GetServerSideProps } from 'next';
 import { prisma } from '@lib/prisma';
+import { useTranslation } from '../../hooks/useTranslation';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
 interface Game {
   id: string;
@@ -29,6 +31,7 @@ interface BettingPageProps {
 }
 
 export default function BettingPage({ game }: BettingPageProps) {
+  const { t } = useTranslation('common');
   const { data: session, status } = useSession();
   const router = useRouter();
   const [homeScore, setHomeScore] = useState('');
@@ -82,9 +85,9 @@ export default function BettingPage({ game }: BettingPageProps) {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error);
 
-      router.push('/betting');
+      router.push(`/competitions/${game.competition.id}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to place bet');
+      setError(err instanceof Error ? err.message : t('betting.failedToPlaceBet'));
     } finally {
       setIsSubmitting(false);
     }
@@ -105,7 +108,7 @@ export default function BettingPage({ game }: BettingPageProps) {
           <div className="p-6">
             <div className="text-center mb-8">
               <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                Place Your Bet
+                {t('betting.placeYourBet')}
               </h1>
               <p className="text-gray-500">
                 {game.competition.name} - {new Date(game.date).toLocaleDateString()}
@@ -123,7 +126,7 @@ export default function BettingPage({ game }: BettingPageProps) {
                 )}
                 <span className="text-lg font-medium">{game.homeTeam.name}</span>
               </div>
-              <div className="text-gray-500">vs</div>
+              <div className="text-gray-500">{t('betting.vs')}</div>
               <div className="flex items-center space-x-4">
                 <span className="text-lg font-medium">{game.awayTeam.name}</span>
                 {game.awayTeam.logo && (
@@ -146,7 +149,7 @@ export default function BettingPage({ game }: BettingPageProps) {
               <div className="flex items-center justify-between space-x-4">
                 <div className="flex-1">
                   <label htmlFor="homeScore" className="block text-sm font-medium text-gray-700 mb-1">
-                    {game.homeTeam.name} Score
+                    {t('betting.homeScore', { team: game.homeTeam.name })}
                   </label>
                   <input
                     type="number"
@@ -160,7 +163,7 @@ export default function BettingPage({ game }: BettingPageProps) {
                 </div>
                 <div className="flex-1">
                   <label htmlFor="awayScore" className="block text-sm font-medium text-gray-700 mb-1">
-                    {game.awayTeam.name} Score
+                    {t('betting.awayScore', { team: game.awayTeam.name })}
                   </label>
                   <input
                     type="number"
@@ -177,17 +180,20 @@ export default function BettingPage({ game }: BettingPageProps) {
               <div className="flex justify-end space-x-3">
                 <button
                   type="button"
-                  onClick={() => router.push('/betting')}
+                  onClick={() => router.push(`/competitions/${game.competition.id}`)}
                   className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 >
-                  Cancel
+                  {t('betting.cancel')}
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
                   className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
                 >
-                  {isSubmitting ? 'Placing Bet...' : existingBet ? 'Update Bet' : 'Place Bet'}
+                  {isSubmitting ? 
+                    (existingBet ? t('betting.updatingBet') : t('betting.placingBet')) : 
+                    (existingBet ? t('betting.updateBet') : t('betting.placeBet'))
+                  }
                 </button>
               </div>
             </form>
@@ -234,12 +240,20 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       };
     }
 
+    // Check if betting is allowed for this game
+    if (game.status !== 'UPCOMING') {
+      return {
+        redirect: {
+          destination: '/competitions',
+          permanent: false,
+        },
+      };
+    }
+
     return {
       props: {
-        game: {
-          ...game,
-          date: game.date.toISOString()
-        }
+        game: JSON.parse(JSON.stringify(game)),
+        ...(await serverSideTranslations(context.locale || 'en', ['common']))
       }
     };
   } catch (error) {

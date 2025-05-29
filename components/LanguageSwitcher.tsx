@@ -10,20 +10,34 @@ const LanguageSwitcher = () => {
     router.push(asPath, asPath, { locale: newLocale });
   };
 
+  const getFlag = (lng: string) => {
+    const flags: { [key: string]: string } = {
+      'en': '🇬🇧',
+      'fr': '🇫🇷'
+    };
+    return flags[lng] || '🌐';
+  };
+
   return (
-    <div className="flex items-center space-x-2">
+    <div className="hidden md:flex items-center space-x-1">
       {locales?.map((lng) => (
         <button
           key={lng}
           onClick={() => handleLanguageChange(lng)}
-          className={`px-2 py-1 rounded ${
+          className={`flex flex-col items-center justify-center p-3 rounded-xl transition-all duration-300 min-w-[70px] ${
             lng === locale
-              ? 'bg-blue-600 text-white'
-              : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+              ? 'bg-primary-500/20 text-white shadow-modern ring-1 ring-primary-400/30'
+              : 'text-neutral-300 hover:text-white hover:bg-white/10'
           }`}
           disabled={lng === locale}
+          title={lng === 'en' ? 'English' : 'Français'}
         >
-          {lng.toUpperCase()}
+          <div className="mb-1 text-lg">
+            {getFlag(lng)}
+          </div>
+          <span className="text-xs font-medium">
+            {lng.toUpperCase()}
+          </span>
         </button>
       ))}
     </div>

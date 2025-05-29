@@ -672,7 +672,7 @@ export default function CompetitionDetail() {
                               Edit
                             </button>
                             <button
-                              className="inline-flex items-center px-3 py-1 bg-purple-100 text-purple-800 rounded-md hover:bg-purple-200 transition-colors"
+                              className="inline-flex items-center px-3 py-1 bg-accent-100 text-accent-800 rounded-md hover:bg-accent-200 transition-colors"
                               onClick={() => router.push(`/admin/games/${game.id}/bets`)}
                             >
                               <svg className="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
