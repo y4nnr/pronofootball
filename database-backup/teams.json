@@ -495,15 +495,6 @@
     "updatedAt": "2025-05-28T23:48:16.954Z"
   },
   {
-    "id": "cmb8lbxv40002hu9kh4g4z2o5",
-    "name": "Borussia Dortmund",
-    "shortName": "BVB",
-    "logo": "https://upload.wikimedia.org/wikipedia/commons/6/67/Borussia_Dortmund_logo.svg",
-    "category": "CLUB",
-    "createdAt": "2025-05-28T23:42:54.256Z",
-    "updatedAt": "2025-05-28T23:48:16.961Z"
-  },
-  {
     "id": "cmb8lbxv60003hu9k6fbes772",
     "name": "AS Monaco",
     "shortName": "MON",
@@ -520,15 +511,6 @@
     "category": "CLUB",
     "createdAt": "2025-05-28T23:42:54.262Z",
     "updatedAt": "2025-05-28T23:48:16.966Z"
-  },
-  {
-    "id": "cmb8lbxvc0005hu9kmmve6n0g",
-    "name": "Barcelona",
-    "shortName": "BAR",
-    "logo": "https://upload.wikimedia.org/wikipedia/en/4/47/FC_Barcelona_%28crest%29.svg",
-    "category": "CLUB",
-    "createdAt": "2025-05-28T23:42:54.264Z",
-    "updatedAt": "2025-05-28T23:48:16.968Z"
   },
   {
     "id": "cmb8lbxve0006hu9ke9bs9eoj",
@@ -648,15 +630,6 @@
     "updatedAt": "2025-05-28T23:48:17.013Z"
   },
   {
-    "id": "cmb8mtg7w000thucto3xb6edw",
-    "name": "Lille",
-    "shortName": "LIL",
-    "logo": "https://upload.wikimedia.org/wikipedia/en/f/f6/Lille_OSC_logo.svg",
-    "category": "CLUB",
-    "createdAt": "2025-05-29T00:24:30.812Z",
-    "updatedAt": "2025-05-29T00:24:30.812Z"
-  },
-  {
     "id": "cmb8lbxw8000lhu9kx4gb20ya",
     "name": "Lyon",
     "shortName": "LYO",
@@ -664,15 +637,6 @@
     "category": "CLUB",
     "createdAt": "2025-05-28T23:42:54.296Z",
     "updatedAt": "2025-05-29T00:04:23.825Z"
-  },
-  {
-    "id": "cmb8mtg7i000jhuctbc2uygp1",
-    "name": "Olympiacos",
-    "shortName": "OLY",
-    "logo": "https://upload.wikimedia.org/wikipedia/en/3/3d/Olympiacos_FC_logo.svg",
-    "category": "CLUB",
-    "createdAt": "2025-05-29T00:24:30.798Z",
-    "updatedAt": "2025-05-29T00:24:30.798Z"
   },
   {
     "id": "placeholder-home",
@@ -691,15 +655,6 @@
     "category": "CLUB",
     "createdAt": "2025-05-28T23:42:54.308Z",
     "updatedAt": "2025-05-28T23:48:17.029Z"
-  },
-  {
-    "id": "cmb8mtg7k000khuctmqx5vmr1",
-    "name": "Dinamo Zagreb",
-    "shortName": "DZG",
-    "logo": "https://upload.wikimedia.org/wikipedia/commons/8/8e/GNK_Dinamo_Zagreb_logo.svg",
-    "category": "CLUB",
-    "createdAt": "2025-05-29T00:24:30.801Z",
-    "updatedAt": "2025-05-29T00:24:30.801Z"
   },
   {
     "id": "cmb8lbxwd000ohu9kser5vh61",
@@ -747,15 +702,6 @@
     "updatedAt": "2025-05-29T00:02:58.573Z"
   },
   {
-    "id": "cmb8mtg7l000lhuctt35sfg24",
-    "name": "Atalanta",
-    "shortName": "ATA",
-    "logo": "https://upload.wikimedia.org/wikipedia/en/6/66/Atalanta_BC.svg",
-    "category": "CLUB",
-    "createdAt": "2025-05-29T00:24:30.802Z",
-    "updatedAt": "2025-05-29T00:24:30.802Z"
-  },
-  {
     "id": "cmb8mtg7n000mhuct2an1690r",
     "name": "Bayer Leverkusen",
     "shortName": "B04",
@@ -765,42 +711,6 @@
     "updatedAt": "2025-05-29T00:24:30.803Z"
   },
   {
-    "id": "cmb8mtg7p000nhuctodezyhoe",
-    "name": "Red Bull Salzburg",
-    "shortName": "RBS",
-    "logo": "https://upload.wikimedia.org/wikipedia/en/f/fc/FC_Red_Bull_Salzburg_logo.svg",
-    "category": "CLUB",
-    "createdAt": "2025-05-29T00:24:30.805Z",
-    "updatedAt": "2025-05-29T00:24:30.805Z"
-  },
-  {
-    "id": "cmb8mtg7p000ohuctbxfjkbg6",
-    "name": "Genk",
-    "shortName": "GNK",
-    "logo": "https://upload.wikimedia.org/wikipedia/en/3/3e/KRC_Genk_logo.svg",
-    "category": "CLUB",
-    "createdAt": "2025-05-29T00:24:30.806Z",
-    "updatedAt": "2025-05-29T00:24:30.806Z"
-  },
-  {
-    "id": "cmb8mtg7r000phuct03tt3i39",
-    "name": "Slavia Prague",
-    "shortName": "SLP",
-    "logo": "https://upload.wikimedia.org/wikipedia/en/d/d5/SK_Slavia_Prague_logo.svg",
-    "category": "CLUB",
-    "createdAt": "2025-05-29T00:24:30.808Z",
-    "updatedAt": "2025-05-29T00:24:30.808Z"
-  },
-  {
-    "id": "cmb8mtg7s000qhuctqj35wc1a",
-    "name": "Zenit",
-    "shortName": "ZEN",
-    "logo": "https://upload.wikimedia.org/wikipedia/en/a/a9/FC_Zenit_Saint_Petersburg_Logo.svg",
-    "category": "CLUB",
-    "createdAt": "2025-05-29T00:24:30.809Z",
-    "updatedAt": "2025-05-29T00:24:30.809Z"
-  },
-  {
     "id": "placeholder-away",
     "name": "Placeholder Away",
     "shortName": "PA",
@@ -808,5 +718,248 @@
     "category": "NATIONAL",
     "createdAt": "2025-05-29T00:45:30.455Z",
     "updatedAt": "2025-05-29T00:45:30.455Z"
+  },
+  {
+    "id": "cmb8mtg7k000khuctmqx5vmr1",
+    "name": "Dinamo Zagreb",
+    "shortName": "DZG",
+    "logo": "https://upload.wikimedia.org/wikipedia/en/5/53/GNK_Dinamo_Zagreb_crest.svg",
+    "category": "CLUB",
+    "createdAt": "2025-05-29T00:24:30.801Z",
+    "updatedAt": "2025-05-29T07:52:37.061Z"
+  },
+  {
+    "id": "cmb8mtg7i000jhuctbc2uygp1",
+    "name": "Olympiacos",
+    "shortName": "OLY",
+    "logo": "https://upload.wikimedia.org/wikipedia/en/a/a2/Olympiacos_FC_crest.svg",
+    "category": "CLUB",
+    "createdAt": "2025-05-29T00:24:30.798Z",
+    "updatedAt": "2025-05-29T07:53:01.411Z"
+  },
+  {
+    "id": "cmb8mtg7p000ohuctbxfjkbg6",
+    "name": "Genk",
+    "shortName": "GNK",
+    "logo": "https://upload.wikimedia.org/wikipedia/commons/7/77/Logo_KRC_Genk.png",
+    "category": "CLUB",
+    "createdAt": "2025-05-29T00:24:30.806Z",
+    "updatedAt": "2025-05-29T07:53:20.093Z"
+  },
+  {
+    "id": "cmb8mtg7s000qhuctqj35wc1a",
+    "name": "Zenit",
+    "shortName": "ZEN",
+    "logo": "https://upload.wikimedia.org/wikipedia/commons/0/0b/FC_Zenit_2_star_2023_logo.png",
+    "category": "CLUB",
+    "createdAt": "2025-05-29T00:24:30.809Z",
+    "updatedAt": "2025-05-29T07:53:41.875Z"
+  },
+  {
+    "id": "cmb8mtg7r000phuct03tt3i39",
+    "name": "Slavia Prague",
+    "shortName": "SLP",
+    "logo": "https://upload.wikimedia.org/wikipedia/commons/2/2b/SK_Slavia_Praha_full_logo.svg",
+    "category": "CLUB",
+    "createdAt": "2025-05-29T00:24:30.808Z",
+    "updatedAt": "2025-05-29T07:54:01.924Z"
+  },
+  {
+    "id": "cmb8mtg7p000nhuctodezyhoe",
+    "name": "Red Bull Salzburg",
+    "shortName": "RBS",
+    "logo": "https://upload.wikimedia.org/wikipedia/en/7/77/FC_Red_Bull_Salzburg_logo.svg",
+    "category": "CLUB",
+    "createdAt": "2025-05-29T00:24:30.805Z",
+    "updatedAt": "2025-05-29T07:54:25.898Z"
+  },
+  {
+    "id": "cmb8mtg7l000lhuctt35sfg24",
+    "name": "Atalanta",
+    "shortName": "ATA",
+    "logo": "https://upload.wikimedia.org/wikipedia/en/6/66/AtalantaBC.svg",
+    "category": "CLUB",
+    "createdAt": "2025-05-29T00:24:30.802Z",
+    "updatedAt": "2025-05-29T07:54:52.471Z"
+  },
+  {
+    "id": "cmb8mtg7w000thucto3xb6edw",
+    "name": "Lille",
+    "shortName": "LIL",
+    "logo": "https://upload.wikimedia.org/wikipedia/en/3/3f/Lille_OSC_2018_logo.svg",
+    "category": "CLUB",
+    "createdAt": "2025-05-29T00:24:30.812Z",
+    "updatedAt": "2025-05-29T07:55:11.703Z"
+  },
+  {
+    "id": "cmb97p1z5000ihu8pmiwc420u",
+    "name": "Netherlands",
+    "shortName": "NET",
+    "logo": "https://upload.wikimedia.org/wikipedia/commons/2/20/Flag_of_the_Netherlands.svg",
+    "category": "NATIONAL",
+    "createdAt": "2025-05-29T10:08:57.665Z",
+    "updatedAt": "2025-05-29T10:11:36.000Z"
+  },
+  {
+    "id": "cmb97p1zb000jhu8pm1cwmlx7",
+    "name": "Slovenia",
+    "shortName": "SLO",
+    "logo": "https://upload.wikimedia.org/wikipedia/commons/f/f0/Flag_of_Slovenia.svg",
+    "category": "NATIONAL",
+    "createdAt": "2025-05-29T10:08:57.672Z",
+    "updatedAt": "2025-05-29T10:12:24.016Z"
+  },
+  {
+    "id": "cmb97p1zd000khu8pegyvvlo8",
+    "name": "Georgia",
+    "shortName": "GEO",
+    "logo": "https://upload.wikimedia.org/wikipedia/commons/0/0f/Flag_of_Georgia.svg",
+    "category": "NATIONAL",
+    "createdAt": "2025-05-29T10:08:57.673Z",
+    "updatedAt": "2025-05-29T10:11:11.832Z"
+  },
+  {
+    "id": "cmb97p1ze000lhu8pzo4fftzy",
+    "name": "Scotland",
+    "shortName": "SCO",
+    "logo": "https://upload.wikimedia.org/wikipedia/commons/1/10/Flag_of_Scotland.svg",
+    "category": "NATIONAL",
+    "createdAt": "2025-05-29T10:08:57.675Z",
+    "updatedAt": "2025-05-29T10:11:58.743Z"
+  },
+  {
+    "id": "cmb9bjhkm001bhu8y0kmkvu2c",
+    "name": "Girona",
+    "shortName": "GIR",
+    "logo": "https://upload.wikimedia.org/wikipedia/en/f/f7/Girona_FC_Logo.svg",
+    "category": "CLUB",
+    "createdAt": "2025-05-29T11:56:36.407Z",
+    "updatedAt": "2025-05-29T12:49:12.166Z"
+  },
+  {
+    "id": "cmb9bjhke0012hu8y8mf07vki",
+    "name": "Arsenal",
+    "shortName": "ARS",
+    "logo": "https://upload.wikimedia.org/wikipedia/en/5/53/Arsenal_FC.svg",
+    "category": "CLUB",
+    "createdAt": "2025-05-29T11:56:36.399Z",
+    "updatedAt": "2025-05-29T12:49:27.925Z"
+  },
+  {
+    "id": "cmb9bjhkp001ehu8yzzi2zsk6",
+    "name": "Bologna",
+    "shortName": "BOL",
+    "logo": "https://upload.wikimedia.org/wikipedia/commons/5/5b/Bologna_F.C._1909_logo.svg",
+    "category": "CLUB",
+    "createdAt": "2025-05-29T11:56:36.409Z",
+    "updatedAt": "2025-05-29T12:49:53.502Z"
+  },
+  {
+    "id": "cmb9bjhjv000phu8yj2l8rzhb",
+    "name": "Brest",
+    "shortName": "BRE",
+    "logo": "https://upload.wikimedia.org/wikipedia/en/0/05/Stade_Brestois_29_logo.svg",
+    "category": "CLUB",
+    "createdAt": "2025-05-29T11:56:36.380Z",
+    "updatedAt": "2025-05-29T12:50:09.038Z"
+  },
+  {
+    "id": "cmb9bjhkq001ghu8yxqriz8gw",
+    "name": "Celtic",
+    "shortName": "CEL",
+    "logo": "https://upload.wikimedia.org/wikipedia/en/7/71/Celtic_FC_crest.svg",
+    "category": "CLUB",
+    "createdAt": "2025-05-29T11:56:36.411Z",
+    "updatedAt": "2025-05-29T12:50:31.666Z"
+  },
+  {
+    "id": "cmb9bjhki0016hu8ylyyj6jwq",
+    "name": "Feyenoord",
+    "shortName": "FEY",
+    "logo": "https://upload.wikimedia.org/wikipedia/commons/f/f9/Feyenoord_logo_since_2024.svg",
+    "category": "CLUB",
+    "createdAt": "2025-05-29T11:56:36.403Z",
+    "updatedAt": "2025-05-29T12:50:48.968Z"
+  },
+  {
+    "id": "cmb9bjhkj0017hu8yx31qk442",
+    "name": "Sporting CP",
+    "shortName": "SCP",
+    "logo": "https://upload.wikimedia.org/wikipedia/en/e/e1/Sporting_Clube_de_Portugal_%28Logo%29.svg",
+    "category": "CLUB",
+    "createdAt": "2025-05-29T11:56:36.403Z",
+    "updatedAt": "2025-05-29T12:51:18.975Z"
+  },
+  {
+    "id": "cmb9bjhkm001ahu8yi6pr18pa",
+    "name": "Sturm Graz",
+    "shortName": "STG",
+    "logo": "https://upload.wikimedia.org/wikipedia/en/9/91/SK_Sturm_Graz_logo.svg",
+    "category": "CLUB",
+    "createdAt": "2025-05-29T11:56:36.406Z",
+    "updatedAt": "2025-05-29T12:51:40.082Z"
+  },
+  {
+    "id": "cmb98b787000jhu4p16fw1amd",
+    "name": "North Macedonia",
+    "shortName": "NOR",
+    "logo": "https://upload.wikimedia.org/wikipedia/commons/7/79/Flag_of_North_Macedonia.svg",
+    "category": "NATIONAL",
+    "createdAt": "2025-05-29T10:26:10.904Z",
+    "updatedAt": "2025-05-29T12:35:21.415Z"
+  },
+  {
+    "id": "cmb98b782000ihu4p9q3yoll2",
+    "name": "Finland",
+    "shortName": "FIN",
+    "logo": "https://upload.wikimedia.org/wikipedia/commons/b/bc/Flag_of_Finland.svg",
+    "category": "NATIONAL",
+    "createdAt": "2025-05-29T10:26:10.898Z",
+    "updatedAt": "2025-05-29T12:35:42.244Z"
+  },
+  {
+    "id": "cmb9bjhjt000mhu8yd53if1rq",
+    "name": "Aston Villa",
+    "shortName": "AVL",
+    "logo": "https://logos-world.net/wp-content/uploads/2020/06/Aston-Villa-Logo.png",
+    "category": "CLUB",
+    "createdAt": "2025-05-29T11:56:36.378Z",
+    "updatedAt": "2025-05-29T12:36:04.636Z"
+  },
+  {
+    "id": "cmb9bjhjs000khu8ypnrfs823",
+    "name": "Slovan Bratislava",
+    "shortName": "SLB",
+    "logo": "https://upload.wikimedia.org/wikipedia/commons/0/01/SK_Slovan_Bratislava_logo.svg",
+    "category": "CLUB",
+    "createdAt": "2025-05-29T11:56:36.376Z",
+    "updatedAt": "2025-05-29T12:41:48.575Z"
+  },
+  {
+    "id": "cmb9bjhkh0015hu8ykf7m2gkk",
+    "name": "AC Milan",
+    "shortName": "MIL",
+    "logo": "https://upload.wikimedia.org/wikipedia/commons/d/d0/Logo_of_AC_Milan.svg",
+    "category": "CLUB",
+    "createdAt": "2025-05-29T11:56:36.402Z",
+    "updatedAt": "2025-05-29T12:42:10.273Z"
+  },
+  {
+    "id": "cmb9bjhjv000ohu8ylpafyjmn",
+    "name": "Sparta Prague",
+    "shortName": "SPP",
+    "logo": "https://upload.wikimedia.org/wikipedia/commons/d/dd/AC-Sparta-LOGO2021.svg",
+    "category": "CLUB",
+    "createdAt": "2025-05-29T11:56:36.379Z",
+    "updatedAt": "2025-05-29T12:43:29.034Z"
+  },
+  {
+    "id": "cmb9bjhjr000jhu8yuq9b5x5o",
+    "name": "VfB Stuttgart",
+    "shortName": "VFB",
+    "logo": "https://upload.wikimedia.org/wikipedia/commons/e/eb/VfB_Stuttgart_1893_Logo.svg",
+    "category": "CLUB",
+    "createdAt": "2025-05-29T11:56:36.375Z",
+    "updatedAt": "2025-05-29T12:47:36.354Z"
   }
 ]
