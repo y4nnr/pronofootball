@@ -4,6 +4,40 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+// Add interfaces for User, Bet, Competition
+interface Bet {
+  points: number;
+  game: {
+    status: string;
+    date: Date | string;
+    competition: {
+      id: string;
+      name: string;
+      status: string;
+      logo: string | null;
+    };
+  };
+}
+
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  bets: Bet[];
+  stats?: any;
+  createdAt: Date;
+}
+
+interface Competition {
+  id: string;
+  name: string;
+  startDate: Date;
+  endDate: Date;
+  status: string;
+  winner?: { id: string };
+  logo?: string;
+}
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -48,17 +82,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Calculate stats for users who don't have UserStats records yet
     const usersWithCalculatedStats = await Promise.all(
-      users.map(async (user: any) => {
+      users.map(async (user: User) => {
         let stats = user.stats;
         
         // If no stats record exists, calculate from bets
         if (!stats) {
-          const totalBets = user.bets.length;
-          const totalPoints = user.bets.reduce((sum: number, bet: any) => sum + bet.points, 0);
+          const finishedBets = user.bets.filter(bet => bet.game.status === 'FINISHED');
+          const totalBets = finishedBets.length;
+          const totalPoints = finishedBets.reduce((sum: number, bet: any) => sum + bet.points, 0);
           const accuracy = totalBets > 0 ? (totalPoints / (totalBets * 3)) * 100 : 0;
           
-          // Calculate actual competition wins (not games with points) - only finished competitions
-          const competitionWins = competitions.filter((comp: any) => comp.winner?.id === user.id && comp.status === 'FINISHED').length;
+          // Calculate actual competition wins (not games with points) - only completed competitions
+          const competitionWins = competitions.filter((comp: any) => comp.winner?.id === user.id && comp.status === 'COMPLETED').length;
           
           // NO STREAK CALCULATION FROM HISTORICAL DATA
           // All streaks should be 0 until the first real competition starts
@@ -83,7 +118,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           };
         } else {
           // For existing stats, recalculate competition wins and reset streaks to 0
-          const competitionWins = competitions.filter((comp: any) => comp.winner?.id === user.id && comp.status === 'FINISHED').length;
+          const competitionWins = competitions.filter((comp: any) => comp.winner?.id === user.id && comp.status === 'COMPLETED').length;
           
           // NO STREAK CALCULATION FROM HISTORICAL DATA
           // All streaks should be 0 until the first real competition starts

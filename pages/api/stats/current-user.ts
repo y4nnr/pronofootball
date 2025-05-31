@@ -52,8 +52,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     let calculatedStats;
     
     if (!user.stats) {
-      const totalBets = user.bets.length;
-      const totalPoints = user.bets.reduce((sum: number, bet: Bet) => sum + bet.points, 0);
+      const finishedBets = user.bets.filter(bet => bet.game.status === 'FINISHED');
+      const totalBets = finishedBets.length;
+      const totalPoints = finishedBets.reduce((sum: number, bet: Bet) => sum + bet.points, 0);
       const accuracy = totalBets > 0 ? (totalPoints / (totalBets * 3)) * 100 : 0;
       
       // Calculate actual competition wins (consistent with leaderboard API) - only completed competitions
@@ -68,8 +69,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       // Calculate longest streak
       let longestStreak = 0;
       let currentStreak = 0;
-      const sortedBets = user.bets
-        .filter((bet: Bet) => bet.game.status === 'FINISHED')
+      const sortedBets = finishedBets
         .sort((a: Bet, b: Bet) => new Date(a.game.date).getTime() - new Date(b.game.date).getTime());
       
       for (const bet of sortedBets) {
