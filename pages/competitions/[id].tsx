@@ -614,7 +614,8 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
           where: {
             userId: user.id,
             game: {
-              competitionId: competition.id
+              competitionId: competition.id,
+              status: 'FINISHED'  // Only count finished games
             }
           },
           select: {
