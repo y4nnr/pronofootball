@@ -538,10 +538,17 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   }
 
   try {
-    // Fetch competition details
+    // Fetch competition details with minimal required fields
     const competition = await prisma.competition.findUnique({
       where: { id: id as string },
-      include: {
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        startDate: true,
+        endDate: true,
+        status: true,
+        logo: true,
         winner: {
           select: { id: true, name: true }
         },
@@ -549,7 +556,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
           select: { id: true, name: true }
         },
         users: {
-          include: {
+          select: {
             user: {
               select: { id: true, name: true, profilePictureUrl: true }
             }
@@ -567,41 +574,56 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       };
     }
 
-    // Fetch all games for this competition
+    // Fetch games with pagination and minimal required fields
     const games = await prisma.game.findMany({
       where: { competitionId: competition.id },
-      include: {
-        homeTeam: { select: { id: true, name: true, logo: true } },
-        awayTeam: { select: { id: true, name: true, logo: true } },
+      select: {
+        id: true,
+        date: true,
+        status: true,
+        homeScore: true,
+        awayScore: true,
+        homeTeam: {
+          select: { id: true, name: true, logo: true }
+        },
+        awayTeam: {
+          select: { id: true, name: true, logo: true }
+        },
         bets: {
-          include: {
-            user: { select: { id: true, name: true, profilePictureUrl: true } }
+          select: {
+            id: true,
+            userId: true,
+            score1: true,
+            score2: true,
+            user: {
+              select: { id: true, name: true, profilePictureUrl: true }
+            }
           }
         }
       },
-      orderBy: { date: 'asc' }
+      orderBy: { date: 'desc' },
+      take: 50 // Limit to last 50 games
     });
 
-    // Get competition stats for all participants
+    // Get competition stats for all participants with minimal fields
     const competitionStats = await Promise.all(
-      competition.users.map(async (competitionUser: CompetitionUser) => {
+      competition.users.map(async (competitionUser) => {
         const user = competitionUser.user;
         
-        // Get user's bets for this competition
         const userBets = await prisma.bet.findMany({
           where: {
             userId: user.id,
             game: {
               competitionId: competition.id
             }
+          },
+          select: {
+            points: true
           }
         });
 
-        const totalPoints = userBets.reduce((sum: number, bet: Bet) => sum + bet.points, 0);
+        const totalPoints = userBets.reduce((sum, bet) => sum + bet.points, 0);
         const totalPredictions = userBets.length;
-        const exactScores = 0; // Always 0 as requested
-        const correctWinners = userBets.filter((bet: Bet) => bet.points === 1).length;
-        const accuracy = totalPredictions > 0 ? ((exactScores + correctWinners) / totalPredictions) * 100 : 0;
 
         return {
           userId: user.id,
@@ -609,9 +631,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
           profilePictureUrl: user.profilePictureUrl,
           totalPoints,
           totalPredictions,
-          accuracy,
-          exactScores,
-          correctWinners,
           position: 0 // Will be set after sorting
         };
       })
