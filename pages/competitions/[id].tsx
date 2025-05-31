@@ -303,7 +303,7 @@ export default function CompetitionDetails({ competition, competitionStats, game
                             </div>
                           </div>
                           {/* Bets List */}
-                          {game.bets && game.bets.length > 0 && (
+                          {game.bets && game.bets.length > 0 && game.status !== 'UPCOMING' && (
                             <div className="w-full pt-3">
                               <div className="text-[11px] text-neutral-500 font-semibold mb-1 ml-1 tracking-wide uppercase">{t('game.placedBets')}</div>
                               <ul className="divide-y divide-neutral-100">
@@ -316,7 +316,7 @@ export default function CompetitionDetails({ competition, competitionStats, game
                                       title={bet.user.name}
                                     />
                                     <span className="text-xs text-gray-700 mr-2 truncate max-w-[80px]">{bet.user.name}</span>
-                                    {((game.status !== 'UPCOMING' && bet.score1 !== null && bet.score2 !== null)) && (
+                                    {bet.score1 !== null && bet.score2 !== null && (
                                       <span className="text-xs font-mono text-gray-900 bg-gray-100 rounded px-2 py-0.5 ml-auto">{bet.score1} - {bet.score2}</span>
                                     )}
                                   </li>
