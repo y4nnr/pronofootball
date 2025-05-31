@@ -4,6 +4,23 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+// Define Bet interface for type safety
+interface Bet {
+  points: number;
+  game: {
+    status: string;
+    date: Date | string;
+  };
+}
+
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  bets: Bet[];
+  stats?: any;
+}
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -32,19 +49,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(404).json({ error: 'User not found' });
     }
 
-    // Calculate stats from bets if no UserStats record exists
     let calculatedStats;
     
     if (!user.stats) {
       const totalBets = user.bets.length;
-      const totalPoints = user.bets.reduce((sum: number, bet: any) => sum + bet.points, 0);
+      const totalPoints = user.bets.reduce((sum: number, bet: Bet) => sum + bet.points, 0);
       const accuracy = totalBets > 0 ? (totalPoints / (totalBets * 3)) * 100 : 0;
       
-      // Calculate actual competition wins (consistent with leaderboard API) - only finished competitions
+      // Calculate actual competition wins (consistent with leaderboard API) - only completed competitions
       const competitions = await prisma.competition.findMany({
         where: { 
           winnerId: user.id,
-          status: 'FINISHED'
+          status: 'COMPLETED'
         }
       });
       const wins = competitions.length;
@@ -53,8 +69,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       let longestStreak = 0;
       let currentStreak = 0;
       const sortedBets = user.bets
-        .filter((bet: any) => bet.game.status === 'FINISHED')
-        .sort((a: any, b: any) => new Date(a.game.date).getTime() - new Date(b.game.date).getTime());
+        .filter((bet: Bet) => bet.game.status === 'FINISHED')
+        .sort((a: Bet, b: Bet) => new Date(a.game.date).getTime() - new Date(b.game.date).getTime());
       
       for (const bet of sortedBets) {
         if (bet.points > 0) {
@@ -104,13 +120,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
 
     const userRankings = allUsers
-      .map((u: any) => ({
+      .map((u) => ({
         id: u.id,
-        totalPoints: u.bets.reduce((sum: number, bet: any) => sum + bet.points, 0)
+        totalPoints: u.bets.reduce((sum: number, bet: { points: number }) => sum + bet.points, 0)
       }))
-      .sort((a: any, b: any) => b.totalPoints - a.totalPoints);
+      .sort((a, b) => b.totalPoints - a.totalPoints);
 
-    const ranking = userRankings.findIndex((u: any) => u.id === user.id) + 1;
+    const ranking = userRankings.findIndex((u) => u.id === user.id) + 1;
     const averagePoints = calculatedStats.totalPredictions > 0 
       ? parseFloat((calculatedStats.totalPoints / calculatedStats.totalPredictions).toFixed(2))
       : 0;
