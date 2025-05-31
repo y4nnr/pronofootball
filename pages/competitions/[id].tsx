@@ -615,16 +615,22 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
             userId: user.id,
             game: {
               competitionId: competition.id,
-              status: 'FINISHED'  // Only count finished games
+              status: 'FINISHED'
             }
           },
-          select: {
-            points: true
+          include: {
+            game: true
           }
         });
 
-        const totalPoints = userBets.reduce((sum, bet) => sum + bet.points, 0);
+        console.log(`Competition ${competition.name} - User ${user.name} bets:`, userBets.map(bet => ({
+          gameId: bet.game.id,
+          status: bet.game.status,
+          points: bet.points
+        })));
+
         const totalPredictions = userBets.length;
+        const totalPoints = userBets.reduce((sum, bet) => sum + bet.points, 0);
 
         return {
           userId: user.id,

@@ -10,6 +10,10 @@ interface Bet {
   game: {
     status: string;
     date: Date | string;
+    competition: {
+      id: string;
+      name: string;
+    };
   };
 }
 
@@ -52,9 +56,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     let calculatedStats;
     
     if (!user.stats) {
+      // Log all bets for debugging
+      console.log(`User ${user.name} - All bets:`, user.bets.map(bet => ({
+        gameId: bet.game.id,
+        status: bet.game.status,
+        points: bet.points
+      })));
+
       const finishedBets = user.bets.filter(bet => bet.game.status === 'FINISHED');
+      console.log(`User ${user.name} - Finished bets:`, finishedBets.map(bet => ({
+        gameId: bet.game.id,
+        points: bet.points
+      })));
+      
       const totalBets = finishedBets.length;
-      const totalPoints = finishedBets.reduce((sum: number, bet: Bet) => sum + bet.points, 0);
+      const totalPoints = finishedBets.reduce((sum, bet) => sum + bet.points, 0);
       const accuracy = totalBets > 0 ? (totalPoints / (totalBets * 3)) * 100 : 0;
       
       // Calculate actual competition wins (consistent with leaderboard API) - only completed competitions

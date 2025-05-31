@@ -88,8 +88,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         // If no stats record exists, calculate from bets
         if (!stats) {
           const finishedBets = user.bets.filter(bet => bet.game.status === 'FINISHED');
+          console.log(`Leaderboard - User ${user.name} bets:`, finishedBets.map(bet => ({
+            gameId: bet.game.id,
+            status: bet.game.status,
+            points: bet.points
+          })));
+
           const totalBets = finishedBets.length;
-          const totalPoints = finishedBets.reduce((sum: number, bet: any) => sum + bet.points, 0);
+          const totalPoints = finishedBets.reduce((sum, bet) => sum + bet.points, 0);
           const accuracy = totalBets > 0 ? (totalPoints / (totalBets * 3)) * 100 : 0;
           
           // Calculate actual competition wins (not games with points) - only completed competitions
