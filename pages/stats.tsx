@@ -1,12 +1,20 @@
 import { GetServerSideProps } from 'next';
 import { getSession } from 'next-auth/react';
 import { useTranslation } from '../hooks/useTranslation';
-import Navbar from '../components/Navbar';
-import { ChartBarIcon, TrophyIcon, FireIcon, CalendarIcon, UserGroupIcon, StarIcon } from '@heroicons/react/24/outline';
 import { useEffect, useState } from 'react';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import {
+  ChartBarIcon,
+  TrophyIcon,
+  FireIcon,
+  UserGroupIcon,
+  StarIcon,
+  CheckCircleIcon,
+  UserIcon,
+  ArrowTrendingUpIcon
+} from '@heroicons/react/24/outline';
 
 interface UserStats {
   totalPredictions: number;
@@ -81,7 +89,7 @@ interface LastGamePerformance {
   result: 'exact' | 'correct' | 'wrong';
 }
 
-export default function Stats({ currentUser }: { currentUser: any }) {
+export default function Stats({ currentUser }: { currentUser: LeaderboardUser }) {
   const { t } = useTranslation('common');
   const router = useRouter();
   const [leaderboardData, setLeaderboardData] = useState<LeaderboardData | null>(null);
@@ -89,7 +97,7 @@ export default function Stats({ currentUser }: { currentUser: any }) {
   const [userProfilePictures, setUserProfilePictures] = useState<UserProfilePicture>({});
   const [currentUserStats, setCurrentUserStats] = useState<CurrentUserStats | null>(null);
   const [lastGamesPerformance, setLastGamesPerformance] = useState<LastGamePerformance[]>([]);
-  const [performanceLoading, setPerformanceLoading] = useState(true);
+  const [, setPerformanceLoading] = useState(true);
 
   useEffect(() => {
     fetchLeaderboardData();
@@ -115,7 +123,7 @@ export default function Stats({ currentUser }: { currentUser: any }) {
           if (userInLeaderboard) {
             const ranking = data.topPlayersByPoints.findIndex((user: LeaderboardUser) => user.id === currentUser.id) + 1;
             const averagePoints = userInLeaderboard.stats.totalPredictions > 0 
-              ? parseFloat((userInLeaderboard.stats.totalPoints / userInLeaderboard.stats.totalPredictions).toFixed(2))
+              ? userInLeaderboard.stats.totalPoints / userInLeaderboard.stats.totalPredictions
               : 0;
             
             setCurrentUserStats({
@@ -181,17 +189,8 @@ export default function Stats({ currentUser }: { currentUser: any }) {
     }
   };
 
-  // Generate random colors for avatars
-  const getAvatarColor = (index: number) => {
-    const colors = [
-      'bg-warm-400', 'bg-primary-500', 'bg-accent-400', 'bg-cream-400',
-      'bg-neutral-400', 'bg-warm-500', 'bg-primary-400', 'bg-accent-500'
-    ];
-    return colors[index % colors.length];
-  };
-
   // Function to get user profile picture or generate avatar
-  const getUserAvatar = (name: string, index: number) => {
+  const getUserAvatar = (name: string) => {
     // Try to get real profile picture first
     const profilePicture = userProfilePictures[name];
     if (profilePicture) {
@@ -258,30 +257,33 @@ export default function Stats({ currentUser }: { currentUser: any }) {
   const { pointsStreaks, exactScoreStreaks } = getStreakLeaderboards();
   const competitionsWonLeaderboard = getCompetitionsWonLeaderboard();
 
+  function truncateTo3Decimals(num: number | string) {
+    const n = typeof num === 'string' ? parseFloat(num) : num;
+    return (Math.trunc(n * 1000) / 1000).toFixed(3);
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-50 to-neutral-100">
-      <Navbar />
-      
+    <div className="bg-[#f3f4f6] min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center space-x-3 mb-2">
-            <div className="p-2 bg-primary-500 rounded-xl shadow-modern">
-              <ChartBarIcon className="h-6 w-6 text-white" />
+            <div className="p-4 bg-primary-600 rounded-full shadow-lg mr-2 flex items-center justify-center">
+              <ChartBarIcon className="h-10 w-10 text-white" />
             </div>
-            <h1 className="text-3xl font-bold gradient-text-stats">
+            <h1 className="text-4xl font-bold text-gray-900">
               {t('stats.title')}
             </h1>
           </div>
-          <p className="subtitle-text">
+          <p className="text-gray-800">
             {t('stats.subtitle')}
           </p>
         </div>
 
-        {/* Real Data Notice */}
+        {/* Remarque Banner - much more visible */}
         {!loading && leaderboardData && (
-          <div className="bg-gradient-to-br from-accent-50 to-accent-100 border border-accent-200/50 rounded-2xl p-6 text-center mb-8 shadow-modern">
-            <p className="text-accent-700 text-sm">
+          <div className="bg-accent-100 border border-accent-400 text-gray-800 rounded-lg p-4 mb-8 shadow">
+            <p className="text-base">
               <strong>{t('note')}:</strong> {t('stats.streakNotice')}
             </p>
           </div>
@@ -289,112 +291,115 @@ export default function Stats({ currentUser }: { currentUser: any }) {
 
         {/* Loading State */}
         {loading && (
-          <div className="bg-gradient-to-br from-primary-50 to-primary-100 border border-primary-200/50 rounded-2xl p-6 text-center mb-8 shadow-modern">
-            <div className="inline-flex items-center px-4 py-2 rounded-full bg-primary-500/20 text-primary-800 text-sm font-medium mb-4">
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-600 mr-2"></div>
+          <div className="bg-primary-100 border border-primary-400 rounded-lg p-6 text-center mb-8 shadow">
+            <div className="inline-flex items-center px-4 py-2 rounded-full bg-primary-700 text-white text-sm font-medium mb-4">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
               {t('stats.loadingRealData')}
             </div>
-            <p className="text-primary-700">
+            <p className="text-primary-900">
               {t('stats.fetchingStatistics')}
             </p>
           </div>
         )}
 
-        {/* Personal Stats Section */}
-        {currentUserStats && (
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold text-neutral-900 mb-6 flex items-center">
-              <div className="p-2 bg-warm-500 rounded-xl shadow-modern mr-3">
-                <StarIcon className="h-5 w-5 text-white" />
-              </div>
-              {t('stats.personalStats')}
-            </h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 mb-6">
+        {/* Vos Statistiques Personnelles */}
+        <section className="bg-white rounded-2xl shadow-modern border border-neutral-200/50 p-6 mb-8">
+          <div className="flex items-center mb-6">
+            <span className="p-3 bg-primary-600 rounded-full shadow-lg mr-3 flex items-center justify-center">
+              <UserIcon className="h-6 w-6 text-white" />
+            </span>
+            <h2 className="text-xl font-bold text-neutral-900">{t('stats.personalStats')}</h2>
+          </div>
+          {currentUserStats && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
               {/* All-time Ranking */}
-              <div className="bg-gradient-to-br from-warm-50 to-warm-100 rounded-2xl shadow-modern border border-warm-200/50 p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <TrophyIcon className="h-8 w-8 text-warm-600" />
-                  <span className="text-2xl font-bold text-warm-900">#{currentUserStats.ranking}</span>
+              <div className="bg-white border border-gray-200 rounded-2xl shadow-md p-6 hover:shadow-lg transition-all">
+                <div className="flex items-center mb-2">
+                  <span className='p-3 bg-accent-500 rounded-full shadow-lg mr-2 flex items-center justify-center'>
+                    <TrophyIcon className="h-6 w-6 text-white" />
+                  </span>
+                  <span className="text-3xl text-gray-800">#{currentUserStats.ranking}</span>
                 </div>
-                <h3 className="font-semibold text-warm-900">{t('stats.allTimeRanking')}</h3>
-                <p className="text-sm text-warm-700">{t('stats.outOfUsers', { count: leaderboardData?.totalUsers || 0 })}</p>
+                <div className="text-base text-gray-800">{t('stats.allTimeRanking')}</div>
+                <div className="text-xs text-gray-500">{t('stats.outOfUsers', { count: leaderboardData?.totalUsers || 0 })}</div>
               </div>
-
               {/* Total Points All Time */}
-              <div className="bg-gradient-to-br from-primary-50 to-primary-100 rounded-2xl shadow-modern border border-primary-200/50 p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <StarIcon className="h-8 w-8 text-primary-600" />
-                  <span className="text-2xl font-bold text-primary-900">{currentUserStats.totalPoints}</span>
+              <div className="bg-white border border-gray-200 rounded-2xl shadow-md p-6 hover:shadow-lg transition-all">
+                <div className="flex items-center mb-2">
+                  <span className='p-3 bg-accent-500 rounded-full shadow-lg mr-2 flex items-center justify-center'>
+                    <StarIcon className="h-6 w-6 text-white" />
+                  </span>
+                  <span className="text-3xl text-gray-800">{currentUserStats.totalPoints}</span>
                 </div>
-                <h3 className="font-semibold text-primary-900">{t('stats.pointsAllTime')}</h3>
-                <p className="text-sm text-primary-700">{t('stats.totalPointsEarned')}</p>
+                <div className="text-base text-gray-800">Points</div>
+                <div className="text-xs text-gray-500">{t('stats.totalPointsEarned')}</div>
               </div>
-
               {/* Average Points per Game */}
-              <div className="bg-gradient-to-br from-accent-50 to-accent-100 rounded-2xl shadow-modern border border-accent-200/50 p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <ChartBarIcon className="h-8 w-8 text-accent-600" />
-                  <span className="text-2xl font-bold text-accent-900">{currentUserStats.averagePoints.toFixed(3)}</span>
+              <div className="bg-white border border-gray-200 rounded-2xl shadow-md p-6 hover:shadow-lg transition-all">
+                <div className="flex items-center mb-2">
+                  <span className='p-3 bg-accent-500 rounded-full shadow-lg mr-2 flex items-center justify-center'>
+                    <ChartBarIcon className="h-6 w-6 text-white" />
+                  </span>
+                  <span className="text-3xl text-gray-800">{Number(currentUserStats.averagePoints).toFixed(3)}</span>
                 </div>
-                <h3 className="font-semibold text-accent-900">{t('stats.avgPointsGame')}</h3>
-                <p className="text-sm text-accent-700">{t('stats.basedOnGames', { count: currentUserStats.totalPredictions })}</p>
+                <div className="text-base text-gray-800">{t('stats.avgPointsGame')}</div>
+                <div className="text-xs text-gray-500">{t('stats.basedOnGames', { count: currentUserStats.totalPredictions })}</div>
               </div>
-
               {/* Longest Streak with Points */}
-              <div className="bg-gradient-to-br from-warm-50 to-warm-100 rounded-2xl shadow-modern border border-warm-200/50 p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <FireIcon className="h-8 w-8 text-warm-600" />
-                  <span className="text-2xl font-bold text-warm-900">{currentUserStats.longestStreak}</span>
+              <div className="bg-white border border-gray-200 rounded-2xl shadow-md p-6 hover:shadow-lg transition-all">
+                <div className="flex items-center mb-2">
+                  <span className='p-3 bg-accent-500 rounded-full shadow-lg mr-2 flex items-center justify-center'>
+                    <FireIcon className="h-6 w-6 text-white" />
+                  </span>
+                  <span className="text-3xl text-gray-800">{currentUserStats.longestStreak}</span>
                 </div>
-                <h3 className="font-semibold text-warm-900">{t('stats.longestStreakPoints')}</h3>
-                <p className="text-sm text-warm-700">{t('stats.gamesWithPoints')}</p>
+                <div className="text-base text-gray-800">{t('stats.longestStreakPoints')}</div>
+                <div className="text-xs text-gray-500">{t('stats.gamesWithPoints')}</div>
               </div>
-
               {/* Longest Exact Score Streak */}
-              <div className="bg-gradient-to-br from-accent-50 to-accent-100 rounded-2xl shadow-modern border border-accent-200/50 p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <StarIcon className="h-8 w-8 text-accent-600" />
-                  <span className="text-2xl font-bold text-accent-900">{currentUserStats.exactScoreStreak}</span>
+              <div className="bg-white border border-gray-200 rounded-2xl shadow-md p-6 hover:shadow-lg transition-all">
+                <div className="flex items-center mb-2">
+                  <span className='p-3 bg-accent-500 rounded-full shadow-lg mr-2 flex items-center justify-center'>
+                    <CheckCircleIcon className="h-6 w-6 text-white" />
+                  </span>
+                  <span className="text-3xl text-gray-800">{currentUserStats.exactScoreStreak}</span>
                 </div>
-                <h3 className="font-semibold text-accent-900">{t('stats.longestExactScoreStreak')}</h3>
-                <p className="text-sm text-accent-700">{t('stats.exactScorePredictions')}</p>
+                <div className="text-base text-gray-800">Plus Longue Série (Score Exact)</div>
+                <div className="text-xs text-gray-500">{t('stats.exactScorePredictions')}</div>
               </div>
-
               {/* Competitions Won */}
-              <div className="bg-gradient-to-br from-primary-50 to-primary-100 rounded-2xl shadow-modern border border-primary-200/50 p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <TrophyIcon className="h-8 w-8 text-primary-600" />
-                  <span className="text-2xl font-bold text-primary-900">{currentUserStats.wins}</span>
+              <div className="bg-white border border-gray-200 rounded-2xl shadow-md p-6 hover:shadow-lg transition-all">
+                <div className="flex items-center mb-2">
+                  <span className='p-3 bg-accent-500 rounded-full shadow-lg mr-2 flex items-center justify-center'>
+                    <TrophyIcon className="h-6 w-6 text-white" />
+                  </span>
+                  <span className="text-3xl text-gray-800">{currentUserStats.wins}</span>
                 </div>
-                <h3 className="font-semibold text-primary-900">{t('stats.competitionsWon')}</h3>
-                <p className="text-sm text-primary-700">{t('stats.totalVictories')}</p>
+                <div className="text-base text-gray-800">{t('stats.competitionsWon')}</div>
+                <div className="text-xs text-gray-500">{t('stats.totalVictories')}</div>
               </div>
             </div>
+          )}
 
-            {/* Last 10 Games Performance */}
-            <div className="bg-white rounded-2xl shadow-modern border border-neutral-200/50 p-6">
-              <h3 className="font-semibold text-neutral-900 mb-4 flex items-center">
-                <div className="p-1.5 bg-primary-500 rounded-lg mr-2">
-                  <CalendarIcon className="h-4 w-4 text-white" />
+          {/* Performance des 10 Derniers Matchs */}
+          <div className="bg-white border border-gray-200 rounded-2xl shadow-md p-6 hover:shadow-lg transition-all">
+            <div className="flex items-center mb-2">
+              <span className='p-3 bg-accent-500 rounded-full shadow-lg mr-2 flex items-center justify-center'>
+                <ArrowTrendingUpIcon className="h-6 w-6 text-white" />
+              </span>
+              <div className="flex flex-col flex-1">
+                {/* Labels above the row of numbers, aligned with the numbers */}
+                <div className="flex justify-between text-xs text-neutral-500 mb-1">
+                  <span className="flex items-center">← {t('stats.oldest')}</span>
+                  <span className="flex items-center">{t('stats.mostRecent')} →</span>
                 </div>
-                {t('stats.lastGamesPerformance')}
-              </h3>
-              
-              {performanceLoading ? (
-                <div className="animate-pulse h-32 bg-neutral-200 rounded-xl"></div>
-              ) : lastGamesPerformance.length > 0 ? (
-                <div>
-                  <div className="flex justify-between text-xs text-neutral-500 mb-3">
-                    <span>{t('stats.oldest')}</span>
-                    <span>{t('stats.mostRecent')}</span>
-                  </div>
-                  
-                  <div className="flex space-x-2 mb-4">
-                    {lastGamesPerformance.slice().reverse().map((game, index) => (
+                <div className="flex space-x-2">
+                  {Array.from({ length: 10 }).map((_, index) => {
+                    const game = lastGamesPerformance[index];
+                    return game ? (
                       <div
                         key={game.gameId}
-                        className={`flex-1 h-12 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-modern ${
+                        className={`flex-1 h-12 w-10 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-modern ${
                           game.result === 'exact' ? 'bg-gradient-to-br from-accent-500 to-accent-600' :
                           game.result === 'correct' ? 'bg-gradient-to-br from-primary-500 to-primary-600' :
                           'bg-gradient-to-br from-warm-500 to-warm-600'
@@ -403,64 +408,38 @@ export default function Stats({ currentUser }: { currentUser: any }) {
                       >
                         {game.points}
                       </div>
-                    ))}
-                  </div>
-                  
-                  <div className="text-xs text-neutral-500 text-center">
-                    {t('stats.scoreExplanation')}
-                  </div>
-                  
-                  {/* Detailed breakdown */}
-                  <div className="mt-4 space-y-2 max-h-64 overflow-y-auto">
-                    {lastGamesPerformance.map((game) => (
-                      <div key={game.gameId} className="flex items-center justify-between p-3 bg-neutral-50 rounded-xl border border-neutral-200/50">
-                        <div className="flex items-center space-x-3">
-                          <div className={`w-3 h-3 rounded-full ${
-                            game.result === 'exact' ? 'bg-accent-500' :
-                            game.result === 'correct' ? 'bg-primary-500' :
-                            'bg-warm-500'
-                          }`}></div>
-                          <div>
-                            <div className="text-sm font-medium text-neutral-900">
-                              {game.homeTeam} vs {game.awayTeam}
-                            </div>
-                            <div className="text-xs text-neutral-500">
-                              {new Date(game.date).toLocaleDateString()} • {game.competition}
-                            </div>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-sm font-medium text-neutral-900">
-                            {game.actualScore} ({game.predictedScore})
-                          </div>
-                          <div className="text-xs text-neutral-500">
-                            {game.points} {game.points === 1 ? 'point' : 'points'}
-                          </div>
-                        </div>
+                    ) : (
+                      <div
+                        key={`empty-${index}`}
+                        className="flex-1 h-12 w-10 rounded-xl flex items-center justify-center text-gray-400 font-bold text-sm shadow-modern border-2 border-dashed border-gray-300 bg-white"
+                        title="No data"
+                      >
+                        ?
                       </div>
-                    ))}
-                  </div>
+                    );
+                  })}
                 </div>
-              ) : (
-                <div className="text-center py-4 text-neutral-500">{t('stats.noDataAvailable')}</div>
-              )}
+              </div>
             </div>
+            <div className="text-base text-gray-800 mt-2">{t('stats.lastGamesPerformance')}</div>
+            <div className="text-xs text-gray-500">Points gagnés</div>
           </div>
-        )}
+        </section>
 
-        {/* Leaderboards Section */}
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold text-neutral-900 mb-6 flex items-center">
-            <div className="p-2 bg-primary-500 rounded-xl shadow-modern mr-3">
-              <UserGroupIcon className="h-5 w-5 text-white" />
-            </div>
-            {t('stats.globalLeaderboards')}
-          </h2>
-          
+        {/* Statistiques Globales */}
+        <section className="bg-white rounded-2xl shadow-2xl p-6 mb-8 border border-gray-200">
+          <div className="flex items-center mb-6">
+            <span className="p-3 bg-primary-600 rounded-full shadow-lg mr-3 flex items-center justify-center">
+              <UserGroupIcon className="h-6 w-6 text-white" />
+            </span>
+            <h2 className="text-xl font-bold text-neutral-900">Statistiques Globales</h2>
+          </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Top Players by Points */}
-            <div className="bg-white rounded-2xl shadow-modern border border-neutral-200/50 p-6">
-              <h3 className="font-semibold text-neutral-900 mb-4">{t('stats.topPlayersAllTime')}</h3>
+            {/* Meilleurs Marqueurs */}
+            <div className="bg-[#f9fafb] border border-gray-300 rounded-xl p-6 shadow-xl flex flex-col justify-between">
+              <h3 className="text-gray-900 mb-4 flex items-center">
+                {t('stats.topPlayersAllTime')}
+              </h3>
               <div className="space-y-3">
                 {loading ? (
                   <div className="text-center py-4">
@@ -471,16 +450,9 @@ export default function Stats({ currentUser }: { currentUser: any }) {
                   leaderboardData.topPlayersByPoints.slice(0, 10).map((player, index) => (
                     <div key={player.id} className="flex items-center justify-between p-3 rounded-xl bg-neutral-50 border border-neutral-200/50">
                       <div className="flex items-center space-x-3">
-                        <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-medium ${
-                          index === 0 ? 'bg-gradient-to-br from-warm-100 to-warm-200 text-warm-800' :
-                          index === 1 ? 'bg-gradient-to-br from-neutral-200 to-neutral-300 text-neutral-800' :
-                          index === 2 ? 'bg-gradient-to-br from-accent-100 to-accent-200 text-accent-800' :
-                          'bg-gradient-to-br from-primary-100 to-primary-200 text-primary-800'
-                        }`}>
-                          {index + 1}
-                        </span>
+                        <span className={`text-lg font-medium mr-2 ${index === 0 ? 'text-yellow-500' : index === 1 ? 'text-gray-400' : index === 2 ? 'text-orange-500' : 'text-gray-700'}`}>{index + 1}.</span>
                         <img 
-                          src={getUserAvatar(player.name, index)} 
+                          src={getUserAvatar(player.name)} 
                           alt={player.name}
                           className="w-8 h-8 rounded-full object-cover border border-neutral-200"
                         />
@@ -498,29 +470,24 @@ export default function Stats({ currentUser }: { currentUser: any }) {
               </div>
             </div>
 
-            {/* Top Players by Average */}
-            <div className="bg-white rounded-2xl shadow-modern border border-neutral-200/50 p-6">
-              <h3 className="font-semibold text-neutral-900 mb-4">{t('stats.bestAverage')}</h3>
+            {/* Meilleure Moyenne */}
+            <div className="bg-[#f9fafb] border border-gray-300 rounded-xl p-6 shadow-xl flex flex-col justify-between">
+              <h3 className="text-gray-900 mb-4 flex items-center">
+                {t('stats.bestAverage')}
+              </h3>
               <div className="space-y-3">
                 {loading ? (
                   <div className="text-center py-4">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent-600 mx-auto"></div>
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
                     <p className="text-sm text-neutral-500 mt-2">{t('loading')}...</p>
                   </div>
                 ) : leaderboardData?.topPlayersByAverage ? (
                   leaderboardData.topPlayersByAverage.slice(0, 10).map((player, index) => (
                     <div key={player.id} className="flex items-center justify-between p-3 rounded-xl bg-neutral-50 border border-neutral-200/50">
                       <div className="flex items-center space-x-3">
-                        <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-medium ${
-                          index === 0 ? 'bg-gradient-to-br from-warm-100 to-warm-200 text-warm-800' :
-                          index === 1 ? 'bg-gradient-to-br from-neutral-200 to-neutral-300 text-neutral-800' :
-                          index === 2 ? 'bg-gradient-to-br from-accent-100 to-accent-200 text-accent-800' :
-                          'bg-gradient-to-br from-primary-100 to-primary-200 text-primary-800'
-                        }`}>
-                          {index + 1}
-                        </span>
+                        <span className={`text-lg font-medium mr-2 ${index === 0 ? 'text-yellow-500' : index === 1 ? 'text-gray-400' : index === 2 ? 'text-orange-500' : 'text-gray-700'}`}>{index + 1}.</span>
                         <img 
-                          src={getUserAvatar(player.name, index)} 
+                          src={getUserAvatar(player.name)} 
                           alt={player.name}
                           className="w-8 h-8 rounded-full object-cover border border-neutral-200"
                         />
@@ -529,7 +496,7 @@ export default function Stats({ currentUser }: { currentUser: any }) {
                           <p className="text-xs text-neutral-500">{player.stats.totalPredictions} {t('stats.games')}</p>
                         </div>
                       </div>
-                      <span className="font-semibold text-neutral-900">{player.averagePoints?.toFixed(3) || '0.000'}</span>
+                      <span className="font-semibold text-neutral-900">{truncateTo3Decimals(player.averagePoints ?? 0)}</span>
                     </div>
                   ))
                 ) : (
@@ -539,33 +506,23 @@ export default function Stats({ currentUser }: { currentUser: any }) {
             </div>
 
             {/* Longest Streaks with Points All Time */}
-            <div className="bg-white rounded-2xl shadow-modern border border-neutral-200/50 p-6">
-              <h3 className="font-semibold text-neutral-900 mb-4 flex items-center">
-                <div className="p-1.5 bg-warm-500 rounded-lg mr-2">
-                  <FireIcon className="h-4 w-4 text-white" />
-                </div>
+            <div className="bg-[#f9fafb] border border-gray-300 rounded-xl p-6 shadow-xl flex flex-col justify-between">
+              <h3 className="text-gray-900 mb-4 flex items-center">
                 {t('stats.longestStreaksPointsAllTime')}
               </h3>
               <div className="space-y-3">
                 {loading ? (
                   <div className="text-center py-4">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-warm-600 mx-auto"></div>
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
                     <p className="text-sm text-neutral-500 mt-2">{t('loading')}...</p>
                   </div>
                 ) : pointsStreaks.length > 0 ? (
                   pointsStreaks.map((player, index) => (
                     <div key={player.name} className="flex items-center justify-between p-3 rounded-xl bg-neutral-50 border border-neutral-200/50">
                       <div className="flex items-center space-x-3">
-                        <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-medium ${
-                          index === 0 ? 'bg-gradient-to-br from-warm-100 to-warm-200 text-warm-800' :
-                          index === 1 ? 'bg-gradient-to-br from-neutral-200 to-neutral-300 text-neutral-800' :
-                          index === 2 ? 'bg-gradient-to-br from-accent-100 to-accent-200 text-accent-800' :
-                          'bg-gradient-to-br from-primary-100 to-primary-200 text-primary-800'
-                        }`}>
-                          {index + 1}
-                        </span>
+                        <span className={`text-lg font-medium mr-2 ${index === 0 ? 'text-yellow-500' : index === 1 ? 'text-gray-400' : index === 2 ? 'text-orange-500' : 'text-gray-700'}`}>{index + 1}.</span>
                         <img 
-                          src={getUserAvatar(player.name, index)} 
+                          src={getUserAvatar(player.name)} 
                           alt={player.name}
                           className="w-8 h-8 rounded-full object-cover border border-neutral-200"
                         />
@@ -589,34 +546,24 @@ export default function Stats({ currentUser }: { currentUser: any }) {
               </div>
             </div>
 
-            {/* Longest Exact Score Streaks All Time */}
-            <div className="bg-white rounded-2xl shadow-modern border border-neutral-200/50 p-6">
-              <h3 className="font-semibold text-neutral-900 mb-4 flex items-center">
-                <div className="p-1.5 bg-accent-500 rounded-lg mr-2">
-                  <StarIcon className="h-4 w-4 text-white" />
-                </div>
+            {/* Exact Score Streaks */}
+            <div className="bg-[#f9fafb] border border-gray-300 rounded-xl p-6 shadow-xl flex flex-col justify-between">
+              <h3 className="text-gray-900 mb-4 flex items-center">
                 {t('stats.longestExactScoreStreaksAllTime')}
               </h3>
               <div className="space-y-3">
                 {loading ? (
                   <div className="text-center py-4">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent-600 mx-auto"></div>
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
                     <p className="text-sm text-neutral-500 mt-2">{t('loading')}...</p>
                   </div>
                 ) : exactScoreStreaks.length > 0 ? (
                   exactScoreStreaks.map((player, index) => (
                     <div key={player.name} className="flex items-center justify-between p-3 rounded-xl bg-neutral-50 border border-neutral-200/50">
                       <div className="flex items-center space-x-3">
-                        <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-medium ${
-                          index === 0 ? 'bg-gradient-to-br from-warm-100 to-warm-200 text-warm-800' :
-                          index === 1 ? 'bg-gradient-to-br from-neutral-200 to-neutral-300 text-neutral-800' :
-                          index === 2 ? 'bg-gradient-to-br from-accent-100 to-accent-200 text-accent-800' :
-                          'bg-gradient-to-br from-primary-100 to-primary-200 text-primary-800'
-                        }`}>
-                          {index + 1}
-                        </span>
+                        <span className={`text-lg font-medium mr-2 ${index === 0 ? 'text-yellow-500' : index === 1 ? 'text-gray-400' : index === 2 ? 'text-orange-500' : 'text-gray-700'}`}>{index + 1}.</span>
                         <img 
-                          src={getUserAvatar(player.name, index)} 
+                          src={getUserAvatar(player.name)} 
                           alt={player.name}
                           className="w-8 h-8 rounded-full object-cover border border-neutral-200"
                         />
@@ -641,17 +588,14 @@ export default function Stats({ currentUser }: { currentUser: any }) {
             </div>
 
             {/* Most Competitions Won */}
-            <div className="bg-white rounded-2xl shadow-modern border border-neutral-200/50 p-6 lg:col-span-2">
-              <h3 className="font-semibold text-neutral-900 mb-4 flex items-center">
-                <div className="p-1.5 bg-accent-500 rounded-lg mr-2">
-                  <TrophyIcon className="h-4 w-4 text-white" />
-                </div>
+            <div className="bg-[#f9fafb] border border-gray-300 rounded-xl p-6 shadow-xl flex flex-col justify-between lg:col-span-2">
+              <h3 className="text-gray-900 mb-2 flex items-center text-lg">
                 {t('stats.mostCompetitionsWon')}
               </h3>
-              
+              <p className="text-gray-600 mb-4 text-sm">Joueurs ayant remporté le plus de compétitions</p>
               {loading ? (
                 <div className="text-center py-4">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent-600 mx-auto"></div>
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
                   <p className="text-sm text-neutral-500 mt-2">{t('loading')}...</p>
                 </div>
               ) : competitionsWonLeaderboard.length > 0 ? (
@@ -665,41 +609,31 @@ export default function Stats({ currentUser }: { currentUser: any }) {
                       acc[player.competitions].push(player);
                       return acc;
                     }, {} as Record<number, typeof competitionsWonLeaderboard>);
-                    
                     // Sort by win count (descending)
                     const sortedWinCounts = Object.keys(groupedByWins)
                       .map(Number)
                       .sort((a, b) => b - a);
-                    
                     return sortedWinCounts.map((winCount, groupIndex) => (
-                      <div key={winCount} className="border-l-4 border-accent-500 pl-4 py-3 bg-accent-50 rounded-r-lg">
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="flex items-center space-x-2">
-                            <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold ${
-                              groupIndex === 0 ? 'bg-yellow-500 text-white' :
-                              groupIndex === 1 ? 'bg-gray-400 text-white' :
-                              groupIndex === 2 ? 'bg-orange-500 text-white' :
-                              'bg-warm-500 text-white'
-                            }`}>
-                              {groupIndex + 1}
-                            </span>
-                            <span className="text-lg font-bold text-neutral-900">
-                              {winCount} {winCount === 1 ? t('stats.win') : t('stats.wins')}
-                            </span>
-                          </div>
+                      <div key={winCount} className={`pl-4 py-3 rounded-xl mb-2 flex flex-col border-l-8 ${
+                        groupIndex === 0 ? 'border-yellow-400 bg-yellow-50' :
+                        groupIndex === 1 ? 'border-gray-400 bg-gray-50' :
+                        groupIndex === 2 ? 'border-orange-400 bg-orange-50' :
+                        'border-blue-400 bg-blue-50'
+                      }`}>
+                        <div className="flex items-center mb-3">
+                          <span className={`text-lg font-medium mr-2 ${groupIndex === 0 ? 'text-yellow-500' : groupIndex === 1 ? 'text-gray-400' : groupIndex === 2 ? 'text-orange-500' : 'text-gray-700'}`}>{winCount}</span>
                         </div>
-                        
                         <div className="flex flex-wrap gap-3">
                           {groupedByWins[winCount].map((player) => (
-                            <div key={player.name} className="flex items-center space-x-2 bg-white rounded-lg p-3 shadow-sm border border-gray-200">
+                            <div key={player.name} className="flex items-center space-x-2 bg-white rounded-lg p-3 shadow border border-gray-200">
                               <img 
-                                src={getUserAvatar(player.name, 0)} 
+                                src={getUserAvatar(player.name)} 
                                 alt={player.name}
-                                className="w-8 h-8 rounded-full border-2 border-accent-300"
+                                className="w-8 h-8 rounded-full border-2 border-yellow-400"
                               />
                               <div>
-                                <div className="font-medium text-neutral-900 text-sm">{player.name}</div>
-                                <div className="text-xs text-neutral-500 max-w-48 truncate" title={player.wonCompetitions}>
+                                <div className="font-bold text-gray-900 text-sm">{player.name}</div>
+                                <div className="text-xs text-gray-500 max-w-48 truncate" title={player.wonCompetitions}>
                                   {player.wonCompetitions}
                                 </div>
                               </div>
@@ -715,26 +649,17 @@ export default function Stats({ currentUser }: { currentUser: any }) {
               )}
             </div>
           </div>
-        </div>
+        </section>
 
         {/* Palmarès Section */}
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold text-neutral-900 mb-6 flex items-center">
-            <div className="p-2 bg-accent-500 rounded-xl shadow-modern mr-3">
-              <TrophyIcon className="h-5 w-5 text-white" />
+        <section className="bg-white rounded-2xl shadow-modern border border-neutral-200/50 p-6 mb-8">
+          <div className="flex items-center mb-6">
+            <div className="p-3 bg-primary-600 rounded-full shadow-lg mr-3 flex items-center justify-center">
+              <TrophyIcon className="h-6 w-6 text-white" />
             </div>
-            {t('stats.palmares')}
-          </h2>
-          
+            <h2 className="text-xl font-bold text-neutral-900">Competition History</h2>
+          </div>
           <div className="bg-white rounded-xl shadow-md border border-neutral-200 overflow-hidden">
-            <div className="px-6 py-4 bg-gradient-to-r from-yellow-50 to-orange-50 border-b border-neutral-200">
-              <h3 className="text-lg font-semibold text-neutral-900 flex items-center">
-                <CalendarIcon className="h-5 w-5 text-yellow-600 mr-2" />
-                {t('stats.competitionHistoryChampions')}
-              </h3>
-              <p className="text-sm text-neutral-600 mt-1">{t('stats.completeRecordCompetitions')}</p>
-            </div>
-            
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-neutral-200">
                 <thead className="bg-neutral-50">
@@ -769,8 +694,8 @@ export default function Stats({ currentUser }: { currentUser: any }) {
                     </tr>
                   ) : leaderboardData?.competitions && leaderboardData.competitions.length > 0 ? (
                     leaderboardData.competitions
-                      .filter(competition => competition.status === 'FINISHED')
-                      .map((competition, index) => {
+                      .filter(competition => competition.status === 'COMPLETED')
+                      .map((competition) => {
                         return (
                           <tr 
                             key={competition.id} 
@@ -830,14 +755,13 @@ export default function Stats({ currentUser }: { currentUser: any }) {
                               {competition.winner ? (
                                 <div className="flex items-center">
                                   <img 
-                                    src={getUserAvatar(competition.winner.name, index)} 
+                                    src={getUserAvatar(competition.winner.name)} 
                                     alt={competition.winner.name}
                                     className="w-8 h-8 rounded-full mr-3 border-2 border-yellow-400"
                                   />
                                   <div>
                                     <div className="text-sm font-medium text-neutral-900 flex items-center">
                                       {competition.winner.name}
-                                      <TrophyIcon className="h-4 w-4 text-yellow-500 ml-2" />
                                     </div>
                                     <div className="text-sm text-neutral-500">{t('stats.champion')}</div>
                                   </div>
@@ -887,7 +811,7 @@ export default function Stats({ currentUser }: { currentUser: any }) {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
                   <div>
                     <div className="text-2xl font-bold text-blue-600">
-                      {leaderboardData.competitions?.filter(comp => comp.status === 'FINISHED').length || 0}
+                      {leaderboardData.competitions?.filter(comp => comp.status === 'COMPLETED').length || 0}
                     </div>
                     <div className="text-sm text-neutral-600">{t('stats.completedCompetitions')}</div>
                   </div>
@@ -907,7 +831,7 @@ export default function Stats({ currentUser }: { currentUser: any }) {
               </div>
             )}
           </div>
-        </div>
+        </section>
       </div>
     </div>
   );
